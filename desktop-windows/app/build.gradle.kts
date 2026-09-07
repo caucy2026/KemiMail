@@ -9,7 +9,7 @@ dependencies {
     implementation("io.insert-koin:koin-core:4.2.1")
     implementation("org.eclipse.angus:jakarta.mail:2.0.5")
     implementation("net.java.dev.jna:jna-platform:5.18.1")
-    implementation("org.jsoup:jsoup:1.22.1")
+    implementation("org.jsoup:jsoup:1.23.2")
     testImplementation(kotlin("test"))
     testImplementation("com.icegreen:greenmail:2.1.13")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.28.1")
