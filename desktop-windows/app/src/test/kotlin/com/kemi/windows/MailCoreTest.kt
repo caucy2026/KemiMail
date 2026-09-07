@@ -117,6 +117,19 @@ class AccountVaultTest {
             assertFails { testSubject.load() }
         } finally { Files.walk(dir).sorted(Comparator.reverseOrder()).forEach { Files.delete(it) } }
     }
+    @Test fun `oversized draft cannot replace the previous recoverable draft`() {
+        val dir = Files.createTempDirectory("vault-test-")
+        try {
+            val testSubject = AccountVault(dir,FakeProtector())
+            val id = java.util.UUID.randomUUID().toString()
+            val previous = ComposeDraft(body = "Recoverable draft")
+            testSubject.saveDraft(id,previous)
+            assertFailsWith<IllegalArgumentException> {
+                testSubject.saveDraft(id,ComposeDraft(body = "x".repeat(1_000_001)))
+            }
+            assertThat(testSubject.loadDraft(id)).isEqualTo(previous)
+        } finally { Files.walk(dir).use { it.sorted(Comparator.reverseOrder()).forEach(Files::delete) } }
+    }
     @Test fun `failed encryption preserves existing account file`() {
         val dir = Files.createTempDirectory("vault-test-")
         try {

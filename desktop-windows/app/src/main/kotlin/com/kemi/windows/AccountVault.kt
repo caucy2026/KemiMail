@@ -49,11 +49,13 @@ class AccountVault(private val directory: Path, private val protector: SecretPro
     }
     @Synchronized fun loadDraft(id: String): ComposeDraft {
         val p = read(draftFile(id))
+        val count = p.getProperty("files", "0").toInt().also { require(it in 0..20) { "草稿附件记录异常" } }
         return ComposeDraft(p.getProperty("to", ""), p.getProperty("cc", ""), p.getProperty("subject", ""),
-            p.getProperty("body", ""), (0 until p.getProperty("files", "0").toInt().coerceIn(0,20))
+            p.getProperty("body", ""), (0 until count)
                 .map { Path.of(p.getProperty("file.$it")) }, p.getProperty("replyId"))
     }
     @Synchronized fun saveDraft(id: String, draft: ComposeDraft) {
+        require(draft.files.size <= 20 && draft.body.length <= 1_000_000) { "草稿过大：最多 20 个附件，正文最多 100 万字符" }
         val p = Properties()
         mapOf("to" to draft.to, "cc" to draft.cc, "subject" to draft.subject, "body" to draft.body,
             "files" to draft.files.size.toString()).forEach { (k,v) -> p.setProperty(k,v) }
@@ -71,7 +73,10 @@ class AccountVault(private val directory: Path, private val protector: SecretPro
     private fun write(path: Path, properties: Properties) {
         Files.createDirectories(directory)
         val bytes = ByteArrayOutputStream().use { properties.storeToXML(it, null, "UTF-8"); it.toByteArray() }
-        val encrypted = try { protector.encrypt(bytes) } finally { bytes.fill(0) }
+        val encrypted = try {
+            require(bytes.size <= 4_000_000) { "本地配置或草稿过大，请删减内容后重试" }
+            protector.encrypt(bytes)
+        } finally { bytes.fill(0) }
         val temp = Files.createTempFile(directory, "vault-", ".tmp")
         try {
             Files.write(temp, encrypted)

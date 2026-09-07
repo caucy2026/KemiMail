@@ -5,6 +5,7 @@ import java.nio.file.Path
 
 /** Explicit diagnostic mode uses a caller-selected temporary directory and no real accounts or network. */
 internal fun runSelfTest(directory: Path) {
+    require(!Files.exists(directory) || Files.list(directory).use { !it.findAny().isPresent }) { "Self-test needs a new or empty directory" }
     Files.createDirectories(directory)
     val vault = AccountVault(directory,WindowsProtector())
     val account = Account(name = "Synthetic",email = "fixture@example.invalid",username = "fixture@example.invalid",
