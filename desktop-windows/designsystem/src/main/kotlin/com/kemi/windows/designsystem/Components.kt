@@ -27,6 +27,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.thunderbird.core.ui.compose.theme2.k9mail.lightThemeColorScheme
 
+@OptIn(androidx.compose.ui.text.ExperimentalTextApi::class)
+private val UiFont = if (System.getProperty("os.name").startsWith("Windows")) FontFamily("Microsoft YaHei UI") else FontFamily.SansSerif
+
 object MailColors {
     val ink = Color(0xFF25272B)
     val secondary = Color(0xFF73777F)
@@ -47,7 +50,7 @@ object MailColors {
 @Composable fun Label(text: String, modifier: Modifier = Modifier, title: Boolean = false,
                       muted: Boolean = false, maxLines: Int = Int.MAX_VALUE, error: Boolean = false,
                       small: Boolean = false, strong: Boolean = false) {
-    Text(text, modifier, fontFamily = FontFamily.SansSerif,
+    Text(text, modifier, fontFamily = UiFont,
         fontSize = when { title -> 23.sp; small -> 12.sp; else -> 14.sp },
         lineHeight = when { title -> 32.sp; small -> 18.sp; else -> 23.sp },
         fontWeight = if (title || strong) FontWeight.SemiBold else FontWeight.Normal,
@@ -64,7 +67,7 @@ object MailColors {
             disabledContainerColor = Color(0xFFF2F3F5), disabledContentColor = Color(0xFFADB0B7)),
         elevation = ButtonDefaults.buttonElevation(0.dp,0.dp,0.dp,0.dp,0.dp)) {
         icon?.let { Glyph(it,Modifier.size(16.dp),if (primary) Color.White else MailColors.secondary); Spacer(Modifier.width(6.dp)) }
-        Text(text,fontSize = 13.sp,fontWeight = FontWeight.Medium, maxLines = 1)
+        Text(text,fontFamily = UiFont,fontSize = 13.sp,fontWeight = FontWeight.Medium, maxLines = 1)
     }
 }
 @OptIn(ExperimentalFoundationApi::class)
@@ -98,7 +101,7 @@ object MailColors {
                 .padding(horizontal = 11.dp,vertical = 8.dp).semantics { contentDescription = label },
             enabled = enabled,singleLine = !multiline,interactionSource = interaction,
             cursorBrush = SolidColor(MailColors.blue),textStyle = TextStyle(color = MailColors.ink,fontSize = 14.sp,
-                fontFamily = FontFamily.SansSerif,lineHeight = 24.sp),
+                fontFamily = UiFont,lineHeight = 24.sp),
             visualTransformation = if (password) PasswordVisualTransformation() else VisualTransformation.None,
             decorationBox = { inner -> Box(contentAlignment = if (multiline) Alignment.TopStart else Alignment.CenterStart) { inner() } })
     }
@@ -108,7 +111,7 @@ object MailColors {
         verticalAlignment = Alignment.CenterVertically,horizontalArrangement = Arrangement.spacedBy(7.dp)) {
         Glyph(MailIcon.Search,Modifier.size(16.dp),MailColors.secondary)
         BasicTextField(value,onChange,Modifier.weight(1f).semantics { contentDescription = "搜索已加载邮件" },singleLine = true,
-            cursorBrush = SolidColor(MailColors.blue),textStyle = TextStyle(fontSize = 13.sp,color = MailColors.ink),
+            cursorBrush = SolidColor(MailColors.blue),textStyle = TextStyle(fontFamily = UiFont,fontSize = 13.sp,color = MailColors.ink),
             decorationBox = { inner -> Box { if (value.isEmpty()) Label("搜索已加载邮件",muted = true,small = true); inner() } })
     }
 }
@@ -121,7 +124,7 @@ object MailColors {
 }
 @Composable fun Avatar(name: String,large: Boolean = false) {
     Box(Modifier.size(if (large) 42.dp else 30.dp).clip(CircleShape).background(Color(0xFFE7EDF6)),contentAlignment = Alignment.Center) {
-        Text(name.trim().firstOrNull()?.uppercase() ?: "M",fontSize = if (large) 18.sp else 13.sp,
+        Text(name.trim().firstOrNull()?.uppercase() ?: "M",fontFamily = UiFont,fontSize = if (large) 18.sp else 13.sp,
             fontWeight = FontWeight.Medium,color = Color(0xFF5D7599))
     }
 }
