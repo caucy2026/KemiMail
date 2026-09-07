@@ -1,0 +1,60 @@
+plugins {
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.android.multiplatform.library) apply false
+    alias(libs.plugins.android.lint) apply false
+    alias(libs.plugins.android.test) apply false
+    alias(libs.plugins.androidx.baselineprofile) apply false
+    alias(libs.plugins.compose) apply false
+    alias(libs.plugins.cyclonedx.bom) apply false
+    alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.kotlin.multiplatform) apply false
+    alias(libs.plugins.kotlin.parcelize) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
+    alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.jetbrains.compose) apply false
+
+    id("thunderbird.dependency.check")
+    id("thunderbird.quality.spotless.root")
+    id("net.thunderbird.gradle.plugin.quality.coverage")
+}
+
+allprojects {
+    tasks.withType<Test> {
+        testLogging {
+            exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+            showCauses = true
+            showExceptions = true
+            showStackTraces = true
+        }
+    }
+}
+
+tasks.register("testsOnCi") {
+    val skipTests = setOf("testReleaseUnitTest")
+
+    dependsOn(
+        subprojects
+            .filterNot { it.path == ":quality:konsist" } // Konsist tests should be run separately
+            .flatMap { it.tasks.withType(Test::class.java) }
+            .filterNot { it.name in skipTests },
+    )
+}
+
+tasks.register("buildCliTools") {
+    val cliToolsProjects = subprojects.filter { it.path.startsWith(":cli:") }
+    dependsOn(
+        cliToolsProjects.map { project -> project.tasks.named("build") },
+    )
+}
+
+tasks.named<Wrapper>("wrapper") {
+    gradleVersion = libs.versions.gradle.get()
+    distributionType = Wrapper.DistributionType.ALL
+    distributionSha256Sum = libs.versions.gradleSha256.get()
+}
+
+codeCoverage {
+    branchCoverage = 26
+    lineCoverage = 31
+}

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/dual_screen_compose_reference_panel"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
+    android:contentDescription="@string/dual_screen_compose_reference_description"
+    android:orientation="vertical"
+    android:padding="24dp"
+    >
+
+    <TextView
+        android:id="@+id/dual_screen_compose_reference_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/dual_screen_compose_reference_title"
+        android:textAppearance="?attr/textAppearanceHeadlineSmall"
+        />
+
+    <TextView
+        android:id="@+id/dual_screen_compose_reference_guidance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/dual_screen_compose_reference_compose_hint"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        />
+
+    <TextView
+        android:id="@+id/dual_screen_compose_reference_subject"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:ellipsize="end"
+        android:maxLines="3"
+        android:textAppearance="?attr/textAppearanceTitleLarge"
+        android:visibility="gone"
+        tools:text="Original message subject"
+        tools:visibility="visible"
+        />
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        >
+
+        <TextView
+            android:id="@+id/dual_screen_compose_reference_body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autoLink="none"
+            android:linksClickable="false"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            android:textIsSelectable="true"
+            android:visibility="gone"
+            tools:text="Read-only original message body"
+            tools:visibility="visible"
+            />
+
+    </androidx.core.widget.NestedScrollView>
+
+    <TextView
+        android:id="@+id/dual_screen_compose_reference_truncated"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/dual_screen_compose_reference_truncated"
+        android:textAppearance="?attr/textAppearanceLabelMedium"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:visibility="gone"
+        />
+
+</LinearLayout>

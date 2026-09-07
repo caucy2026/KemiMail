@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="account_settings_general_title">Obecná nastavení</string>
+    <string name="account_settings_general_avatar_option_monogram">Monogram</string>
+    <string name="account_settings_general_avatar_option_image">Obrázek</string>
+    <string name="account_settings_general_avatar_option_icon">Ikona</string>
+    <string name="account_settings_general_name_title">Název účtu</string>
+    <string name="account_settings_general_name_description">Název spojený s vaším účtem.</string>
+    <string name="account_settings_general_color_title">Barva účtu</string>
+    <string name="account_settings_general_color_description">Barva tohot účtu použitá ve složkách a seznamech účtů.</string>
+    <string name="account_settings_general_avatar_title">Avatar</string>
+    <string name="account_settings_general_avatar_description">Vyberte, jak bude zobrazen avatar vašeho účtu.</string>
+    <string name="account_settings_general_name_error_empty">Název nemůže být prázdný</string>
+    <string name="account_settings_general_name_error_too_long">Název je příliš dlouhý</string>
+    <string name="account_settings_general_avatar_monogram_title">Monogram jako avatar</string>
+    <string name="account_settings_general_avatar_monogram_description">Monogram použitý jako váš avatar.</string>
+    <string name="account_settings_general_avatar_monogram_error_empty">Monogram nemůže být prázdný</string>
+    <string name="account_settings_general_avatar_monogram_error_too_long">Monogram je příliš dlouhý</string>
+    <string name="account_settings_general_avatar_icon_title">Ikona jako avatar</string>
+    <string name="account_settings_general_avatar_icon_description">Vyberte si jednu z ikon, kterou chcete použít jako váš avatar.</string>
+    <string name="account_settings_general_avatar_image_title">Obrázek avataru</string>
+    <string name="account_settings_general_avatar_image_description">Vyberte si obrázek, který bude představovat váš účet.</string>
+    <string name="account_settings_general_avatar_image_select">Vybrat obrázek</string>
+    <string name="account_settings_avatar_error_unsupported_format">Jsou podporovány pouze obrázky JPEG.</string>
+    <string name="account_settings_avatar_hint_jpeg_only">Pouze JPEG</string>
+    <string name="account_settings_show_pictures_label">Vždy zobrazovat obrázky</string>
+    <string name="account_settings_reading_mail">Čtení pošty</string>
+    <string name="account_settings_mark_message_as_read_on_view_label">Označit jako přečtené po otevření</string>
+    <string name="account_settings_mark_message_as_read_on_view_summary">Označit zprávu jako přečtenou po jejím otevření pro prohlížení</string>
+    <string name="account_settings_show_pictures_never">Ne</string>
+    <string name="account_settings_show_pictures_only_from_contacts">Od kontaktů</string>
+    <string name="account_settings_show_pictures_always">Od kohokoli</string>
+    <string name="account_settings_remove_account_action">Odstranit účet</string>
+    <string name="account_settings_okay_action">OK</string>
+    <string name="account_settings_cancel_action">Zrušit</string>
+    <string name="account_settings_account_delete_dlg_title">Odstranit účet</string>
+    <string name="account_settings_account_delete_dlg_instructions_fmt">Účet „<xliff:g id="account">%1$s</xliff:g>“ bude odstraněn z aplikace <xliff:g id="app_name">%2$s</xliff:g>.</string>
+</resources>

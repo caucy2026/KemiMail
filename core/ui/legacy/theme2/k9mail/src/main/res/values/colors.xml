@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- KEMI Mail light theme -->
+    <color name="lightPrimary">#1769E0</color>
+    <color name="lightOnPrimary">#FFFFFF</color>
+    <color name="lightPrimaryContainer">#D8E2FF</color>
+    <color name="lightOnPrimaryContainer">#001A41</color>
+
+    <color name="lightSecondary">#415F91</color>
+    <color name="lightOnSecondary">#FFFFFF</color>
+    <color name="lightSecondaryContainer">#D8E2FF</color>
+    <color name="lightOnSecondaryContainer">#001A41</color>
+
+    <color name="lightTertiary">#00658F</color>
+    <color name="lightOnTertiary">#FFFFFF</color>
+    <color name="lightTertiaryContainer">#C6E7FF</color>
+    <color name="lightOnTertiaryContainer">#001E2E</color>
+
+    <color name="lightError">#A0000E</color>
+    <color name="lightOnError">#FFFFFF</color>
+    <color name="lightErrorContainer">#DC2626</color>
+    <color name="lightOnErrorContainer">#FFFFFF</color>
+
+    <color name="lightSurfaceDim">#D9D9E0</color>
+    <color name="lightSurface">#F9F9FF</color>
+    <color name="lightSurfaceBright">#F9F9FF</color>
+    <color name="lightOnSurface">#1A1B20</color>
+    <color name="lightOnSurfaceVariant">#44474F</color>
+
+    <color name="lightSurfaceContainerLowest">#FFFFFF</color>
+    <color name="lightSurfaceContainerLow">#F3F3FA</color>
+    <color name="lightSurfaceContainer">#EDEDF4</color>
+    <color name="lightSurfaceContainerHigh">#E7E8EE</color>
+    <color name="lightSurfaceContainerHighest">#E1E2E8</color>
+
+    <color name="lightSurfaceInverse">#2F3036</color>
+    <color name="lightOnSurfaceInverse">#F1F0F7</color>
+    <color name="lightPrimaryInverse">#ADC7FF</color>
+
+    <color name="lightOutline">#74777F</color>
+    <color name="lightOutlineVariant">#C4C6D0</color>
+
+    <color name="lightPrimaryFixed">#D8E2FF</color>
+    <color name="lightOnPrimaryFixed">#001A41</color>
+    <color name="lightPrimaryFixedDim">#ADC7FF</color>
+    <color name="lightOnPrimaryFixedVariant">#004494</color>
+
+    <color name="lightSecondaryFixed">#D8E2FF</color>
+    <color name="lightOnSecondaryFixed">#001A41</color>
+    <color name="lightSecondaryFixedDim">#B1C6F9</color>
+    <color name="lightOnSecondaryFixedVariant">#294767</color>
+
+    <color name="lightTertiaryFixed">#C6E7FF</color>
+    <color name="lightOnTertiaryFixed">#001E2E</color>
+    <color name="lightTertiaryFixedDim">#83CFFF</color>
+    <color name="lightOnTertiaryFixedVariant">#004C6D</color>
+
+    <!-- KEMI Mail dark theme -->
+    <color name="darkPrimary">#ADC7FF</color>
+    <color name="darkOnPrimary">#002E69</color>
+    <color name="darkPrimaryContainer">#004494</color>
+    <color name="darkOnPrimaryContainer">#D8E2FF</color>
+
+    <color name="darkSecondary">#B1C6F9</color>
+    <color name="darkOnSecondary">#1B304F</color>
+    <color name="darkSecondaryContainer">#294767</color>
+    <color name="darkOnSecondaryContainer">#D8E2FF</color>
+
+    <color name="darkTertiary">#83CFFF</color>
+    <color name="darkOnTertiary">#00344B</color>
+    <color name="darkTertiaryContainer">#004C6D</color>
+    <color name="darkOnTertiaryContainer">#C6E7FF</color>
+
+    <color name="darkError">#FFB3AD</color>
+    <color name="darkOnError">#68000A</color>
+    <color name="darkErrorContainer">#DA3437</color>
+    <color name="darkOnErrorContainer">#FFFFFF</color>
+
+    <color name="darkSurfaceDim">#111318</color>
+    <color name="darkSurface">#111318</color>
+    <color name="darkSurfaceBright">#37393E</color>
+    <color name="darkOnSurface">#E2E2E9</color>
+    <color name="darkOnSurfaceVariant">#C4C6D0</color>
+
+    <color name="darkSurfaceContainerLowest">#0C0E13</color>
+    <color name="darkSurfaceContainerLow">#1A1B20</color>
+    <color name="darkSurfaceContainer">#1E2025</color>
+    <color name="darkSurfaceContainerHigh">#282A2F</color>
+    <color name="darkSurfaceContainerHighest">#33353A</color>
+
+    <color name="darkSurfaceInverse">#E2E2E9</color>
+    <color name="darkOnSurfaceInverse">#2F3036</color>
+    <color name="darkPrimaryInverse">#1769E0</color>
+
+    <color name="darkOutline">#8E9099</color>
+    <color name="darkOutlineVariant">#44474F</color>
+
+    <color name="darkPrimaryFixed">#D8E2FF</color>
+    <color name="darkOnPrimaryFixed">#001A41</color>
+    <color name="darkPrimaryFixedDim">#ADC7FF</color>
+    <color name="darkOnPrimaryFixedVariant">#004494</color>
+
+    <color name="darkSecondaryFixed">#D8E2FF</color>
+    <color name="darkOnSecondaryFixed">#001A41</color>
+    <color name="darkSecondaryFixedDim">#B1C6F9</color>
+    <color name="darkOnSecondaryFixedVariant">#294767</color>
+
+    <color name="darkTertiaryFixed">#C6E7FF</color>
+    <color name="darkOnTertiaryFixed">#001E2E</color>
+    <color name="darkTertiaryFixedDim">#83CFFF</color>
+    <color name="darkOnTertiaryFixedVariant">#004C6D</color>
+</resources>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_webpage_url" translatable="false">https://github.com/caucy2026</string>
+    <string name="user_forum_url" translatable="false">https://github.com/caucy2026</string>
+    <string name="funding_url" translatable="false">https://github.com/caucy2026</string>
+    <string name="message_header_mua" translatable="false">KEMI Mail for Android</string>
+    <string name="app_authors_url" translatable="false">https://github.com/motyabc/email/graphs/contributors</string>
+    <string name="app_source_url" translatable="false">https://github.com/motyabc/email</string>
+</resources>

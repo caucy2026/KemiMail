@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <title>KEMI 邮箱手机辅助输入</title>
+  <link rel="stylesheet" href="./assist/style.css">
+</head>
+<body>
+  <main class="card">
+    <div class="brand">KEMI 邮箱</div>
+    <h1>手机辅助输入授权码</h1>
+    <p id="account" class="account" hidden></p>
+    <p>请只输入邮箱服务商生成的专用授权码，不要输入邮箱主密码。</p>
+    <div class="verify">
+      <span>与平板核对安全码</span>
+      <strong id="verification">------</strong>
+    </div>
+    <form id="form" autocomplete="off">
+      <label for="credential">邮箱专用授权码</label>
+      <input id="credential" name="credential" type="password" required maxlength="4096"
+             autocapitalize="none" autocomplete="off" spellcheck="false">
+      <button id="submit" type="submit">加密传送到平板</button>
+    </form>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    <p class="privacy">授权码会在本机浏览器中加密，中转服务器只能看到密文。页面关闭后不会保留输入内容。</p>
+  </main>
+  <script src="./assist/app.js" defer></script>
+</body>
+</html>

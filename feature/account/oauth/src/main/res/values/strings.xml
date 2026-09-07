@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="account_oauth_sign_in_description">We\'ll redirect you to your email provider to sign in. You need to grant the app access to your email account.</string>
+    <string name="account_oauth_sign_in_button">Sign in</string>
+    <string name="account_oauth_local_sign_in_button">Sign in on this tablet</string>
+    <string name="account_oauth_device_sign_in_button">Scan with phone to sign in</string>
+    <string name="account_oauth_device_choice_description">Use your phone to sign in through your email provider, or continue securely on this tablet.</string>
+    <string name="account_oauth_device_instructions">Scan this QR code with your phone. Sign in only on your email provider\'s official page, then enter the code shown below.</string>
+    <string name="account_oauth_device_qr_content_description">QR code for signing in on another device</string>
+    <string name="account_oauth_device_code_label">Verification code</string>
+    <string name="account_oauth_device_expiration">Expires in %1$d:%2$02d</string>
+    <string name="account_oauth_device_cancel_button">Cancel phone sign-in</string>
+    <string name="account_oauth_device_error_declined">Authorization was declined on the other device.</string>
+    <string name="account_oauth_device_error_expired">The QR code and verification code expired. Please try again.</string>
+    <string name="account_oauth_device_error_failed">Couldn\'t start or finish phone sign-in. You can retry or sign in on this tablet.</string>
+    <string name="account_oauth_sign_in_with_google_button">Sign in with Google</string>
+    <string name="account_oauth_loading_message">Signing in using OAuth</string>
+    <string name="account_oauth_loading_error">OAuth sign in failed</string>
+
+    <string name="account_oauth_error_canceled">Authorization canceled</string>
+    <string name="account_oauth_error_failed">Authorization failed with the following error: <xliff:g id="error">%s</xliff:g></string>
+    <string name="account_oauth_error_not_supported">OAuth 2.0 is currently not supported with this provider.</string>
+    <string name="account_oauth_error_browser_not_available">The app couldn\'t find a browser to use for granting access to your account.</string>
+
+    <!-- This is displayed below the "Sign in with Google" button. {placeHolder} will be replaced with the text from account_oauth_google_sign_in_support_text_link_text. -->
+    <string name="account_oauth_google_sign_in_support_text">"If you're experiencing problems when signing in with Google, please consult our {placeHolder}."</string>
+    <!-- The {placeHolder} in account_oauth_google_sign_in_support_text will be replaced by this text (that, in the user interface, will be a link to the support article). -->
+    <string name="account_oauth_google_sign_in_support_text_link_text">support article</string>
+</resources>

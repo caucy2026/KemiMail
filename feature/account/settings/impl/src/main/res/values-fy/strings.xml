@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="account_settings_general_title">Algemiene ynstellingen</string>
+    <string name="account_settings_general_avatar_option_monogram">Monogram</string>
+    <string name="account_settings_general_avatar_option_image">Ofbylding</string>
+    <string name="account_settings_general_avatar_option_icon">Piktogram</string>
+    <string name="account_settings_general_name_title">Accountnamme</string>
+    <string name="account_settings_general_name_description">De mei jo account assosjearre namme.</string>
+    <string name="account_settings_general_color_title">Accountkleur</string>
+    <string name="account_settings_general_color_description">De aksintkleur fan dizze account brûkt yn mappen en accountlisten.</string>
+    <string name="account_settings_general_avatar_title">Avatar</string>
+    <string name="account_settings_general_avatar_description">Kies hoe’t jo accountavatar toand wurdt.</string>
+    <string name="account_settings_general_name_error_empty">Namme mei net leech wêze</string>
+    <string name="account_settings_general_name_error_too_long">Namme is te lang</string>
+    <string name="account_settings_general_avatar_monogram_title">Avatar-monogram</string>
+    <string name="account_settings_general_avatar_monogram_description">It monogram brûkt as jo avatar.</string>
+    <string name="account_settings_general_avatar_monogram_error_empty">Monogram mei net leech wêze</string>
+    <string name="account_settings_general_avatar_monogram_error_too_long">Monogram is te lang</string>
+    <string name="account_settings_general_avatar_icon_title">Avatarpiktogram</string>
+    <string name="account_settings_general_avatar_icon_description">Kies ien fan de piktogrammen om as jo avatar te brûken.</string>
+    <string name="account_settings_general_avatar_image_title">Avatarôfbylding</string>
+    <string name="account_settings_general_avatar_image_description">Kies in ôfbylding foar jo account.</string>
+    <string name="account_settings_general_avatar_image_select">Ofbylding selektearje</string>
+    <string name="account_settings_avatar_error_unsupported_format">Allinnich JPEG-ôfbyldingen wurde stipe.</string>
+    <string name="account_settings_avatar_hint_jpeg_only">Allinnich JPEG</string>
+    <string name="account_settings_show_pictures_label">Ofbyldingen altyd toane</string>
+    <string name="account_settings_reading_mail">E-mailberjochten lêze</string>
+    <string name="account_settings_mark_message_as_read_on_view_label">As lêzen markearje wannear iepene</string>
+    <string name="account_settings_mark_message_as_read_on_view_summary">In berjocht as lêzen markearje wannear it iepene is om te besjen</string>
+    <string name="account_settings_show_pictures_never">Nee</string>
+    <string name="account_settings_show_pictures_only_from_contacts">Fan kontakten</string>
+    <string name="account_settings_show_pictures_always">Fan elkenien</string>
+    <string name="account_settings_remove_account_action">Account fuortsmite</string>
+    <string name="account_settings_okay_action">OK</string>
+    <string name="account_settings_cancel_action">Annulearje</string>
+    <string name="account_settings_account_delete_dlg_title">Account fuortsmite</string>
+    <string name="account_settings_account_delete_dlg_instructions_fmt">De account ‘<xliff:g id="account">%1$s</xliff:g>’ sil út <xliff:g id="app_name">%2$s</xliff:g> fuortsmiten wurde.</string>
+</resources>

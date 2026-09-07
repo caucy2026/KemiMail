@@ -1,0 +1,134 @@
+package app.k9mail.feature.launcher.navigation
+
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import app.k9mail.feature.account.edit.navigation.AccountEditNavigation
+import app.k9mail.feature.account.setup.navigation.AccountSetupNavigation
+import app.k9mail.feature.account.setup.navigation.AccountSetupRoute
+import app.k9mail.feature.launcher.FeatureLauncherExternalContract.MessageListLauncher
+import app.k9mail.feature.onboarding.main.navigation.OnboardingNavigation
+import app.k9mail.feature.onboarding.main.navigation.OnboardingRoute
+import net.thunderbird.feature.account.settings.api.AccountSettingsNavigation
+import net.thunderbird.feature.debug.settings.navigation.SecretDebugSettingsNavigation
+import net.thunderbird.feature.debug.settings.navigation.SecretDebugSettingsRoute
+import net.thunderbird.feature.funding.api.FundingNavigation
+import net.thunderbird.feature.thundermail.navigation.ThundermailNavigation
+import net.thunderbird.feature.thundermail.navigation.ThundermailRoute
+import org.koin.compose.koinInject
+
+@Suppress("LongMethod")
+@Composable
+fun FeatureLauncherNavHost(
+    navController: NavHostController,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    messageListLauncher: MessageListLauncher = koinInject(),
+    accountEditNavigation: AccountEditNavigation = koinInject(),
+    accountSettingsNavigation: AccountSettingsNavigation = koinInject(),
+    accountSetupNavigation: AccountSetupNavigation = koinInject(),
+    onboardingNavigation: OnboardingNavigation = koinInject(),
+    fundingNavigation: FundingNavigation = koinInject(),
+    secretDebugSettingsNavigation: SecretDebugSettingsNavigation = koinInject(),
+    thundermailNavigation: ThundermailNavigation = koinInject(),
+) {
+    val activity = LocalActivity.current as ComponentActivity
+
+    NavHost(
+        navController = navController,
+        startDestination = OnboardingRoute.Onboarding(),
+        modifier = modifier,
+    ) {
+        onboardingNavigation.registerRoutes(
+            navGraphBuilder = this,
+            onBack = onBack,
+            onFinish = {
+                when (it) {
+                    is OnboardingRoute.Onboarding -> {
+                        messageListLauncher.launch(it.accountId)
+                        activity.finish()
+                    }
+
+                    is OnboardingRoute.ThundermailScanQrCode ->
+                        navController.navigate(ThundermailRoute.ScanQrCode)
+
+                    is OnboardingRoute.ThundermailSignIn ->
+                        navController.navigate(ThundermailRoute.SignInWithThundermail)
+                }
+            },
+        )
+
+        thundermailNavigation.registerRoutes(
+            navGraphBuilder = this,
+            onBack = onBack,
+            onFinish = { route ->
+                when (route) {
+                    is ThundermailRoute.IncomingSettings ->
+                        navController.navigate(ThundermailRoute.IncomingSettings)
+
+                    is ThundermailRoute.AccountSetup ->
+                        messageListLauncher.launch(accountUuid = route.accountId)
+
+                    is ThundermailRoute.Permissions -> {
+                        messageListLauncher.launch(route.accountId)
+                        activity.finish()
+                    }
+
+                    else -> Unit
+                }
+            },
+        )
+
+        accountSetupNavigation.registerRoutes(
+            navGraphBuilder = this,
+            onBack = onBack,
+            onFinish = {
+                when (it) {
+                    is AccountSetupRoute.AccountSetup -> {
+                        messageListLauncher.launch(it.accountId)
+                    }
+
+                    is AccountSetupRoute.ThundermailScanQrCode ->
+                        navController.navigate(ThundermailRoute.ScanQrCode)
+
+                    is AccountSetupRoute.ThundermailSignIn ->
+                        navController.navigate(ThundermailRoute.SignInWithThundermail)
+                }
+            },
+        )
+
+        accountEditNavigation.registerRoutes(
+            navGraphBuilder = this,
+            onBack = onBack,
+            onFinish = { activity.finish() },
+        )
+
+        accountSettingsNavigation.registerRoutes(
+            navGraphBuilder = this,
+            onBack = onBack,
+            onFinish = {
+                onBack()
+            },
+        )
+
+        fundingNavigation.registerRoutes(
+            navGraphBuilder = this,
+            onBack = onBack,
+            onFinish = { onBack() },
+        )
+
+        secretDebugSettingsNavigation.registerRoutes(
+            navGraphBuilder = this,
+            onBack = onBack,
+            onFinish = { route ->
+                when (route.tab) {
+                    SecretDebugSettingsRoute.Tab.Notification -> onBack()
+                    SecretDebugSettingsRoute.Tab.FeatureFlag -> messageListLauncher.launch(accountUuid = null)
+                }
+            },
+        )
+    }
+}

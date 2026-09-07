@@ -1,0 +1,134 @@
+---
+name: Quality - Checks
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths-ignore:
+      - '.idea/**'
+      - '.gitattributes'
+      - '.github/**.json'
+      - '.gitignore'
+      - '.gitmodules'
+      - '**.md'
+      - 'LICENSE'
+      - 'NOTICE'
+
+concurrency:
+  group: quality-checks-${{ github.ref }}-${{ github.event.pull_request.number || 'no-pr' }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  quality-spotless:
+    name: Spotless check
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 1
+
+      - name: Setup Gradle environment
+        uses: ./.github/actions/setup-gradle
+
+      - name: Quality - Spotless
+        run: ./gradlew spotlessCheck
+
+  quality-detekt:
+    name: Detekt check
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 1
+
+      - name: Setup Gradle environment
+        uses: ./.github/actions/setup-gradle
+
+      - name: Quality - Detekt
+        run: ./gradlew detekt
+
+      - name: Running Detekt including KMP
+        # As we were not verifying detekt in KMP sources before,
+        # this step is likely to fail.
+        continue-on-error: true
+        run: |
+          ./gradlew detektMetadataCommonMain
+          ./gradlew detektMetadataMain
+          ./gradlew detektMetadataCommonJvmMain
+
+  quality-dependency-guard:
+    name: Dependency guard check
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 1
+
+      - name: Setup Gradle environment
+        uses: ./.github/actions/setup-gradle
+
+      - name: Quality - Dependency guard
+        run: ./gradlew dependencyGuard
+
+  quality-kemi-sbom:
+    name: KEMI release SBOM check
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 1
+
+      - name: Setup Gradle environment
+        uses: ./.github/actions/setup-gradle
+
+      - name: Test KEMI SBOM policy
+        run: python3 -m unittest discover -s scripts/ci/tests -p 'test_*.py'
+
+      - name: Generate KEMI release SBOM
+        run: ./gradlew :app-k9mail:kemiReleaseSbom
+
+      - name: Validate KEMI release SBOM
+        run: bash scripts/ci/validate-kemi-sbom.sh
+
+      - name: Archive KEMI release SBOM
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: kemi-release-sbom
+          path: app-k9mail/build/reports/sbom/kemi-release.cdx.json
+          if-no-files-found: error
+          retention-days: 14
+          include-hidden-files: false
+
+  quality-konsist:
+    name: Konsist check
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 1
+
+      - name: Setup Gradle environment
+        uses: ./.github/actions/setup-gradle
+
+      - name: Quality - Konsist
+        run: ./gradlew :quality:konsist:test

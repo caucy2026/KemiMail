@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="onboarding_welcome_developed_by">KEMI product-family email software, developed by the KEMI Mail team.</string>
+    <string name="settings_ui_telemetry_description">Telemetry is not included in this KEMI Mail build.</string>
+</resources>

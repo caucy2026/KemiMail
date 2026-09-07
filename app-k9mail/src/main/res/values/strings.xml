@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- KEMI is the product-family brand and must not be translated. -->
+    <string name="app_name">KEMI Mail</string>
+    <string name="about_app_authors_k9">KEMI Mail team (based on K-9 Mail)</string>
+    <string name="about_app_authors_thunderbird">Thunderbird Mobile Team and K-9 Mail contributors</string>
+    <string name="onboarding_welcome_developed_by">KEMI product-family email software, developed by the KEMI Mail team.</string>
+    <string name="settings_ui_telemetry_description">Telemetry is not included in this KEMI Mail build.</string>
+    <string name="kemi_update_title">KEMI Mail update</string>
+    <string name="kemi_update_version">Version %1$s is available</string>
+    <string name="kemi_update_description">A new version of KEMI Mail is ready to install.</string>
+    <string name="kemi_update_required">This update is required to continue using KEMI Mail.</string>
+    <string name="kemi_update_now">Update now</string>
+    <string name="kemi_update_later">Later</string>
+    <string name="kemi_update_downloading">Downloading…</string>
+    <string name="kemi_update_downloading_progress">Downloading… %1$d%%</string>
+    <string name="kemi_update_ready">The update has been verified and is ready to install.</string>
+    <string name="kemi_update_install">Install</string>
+    <string name="kemi_update_retry">Retry</string>
+    <string name="kemi_update_error_network">Unable to check for updates. Check your network connection and try again.</string>
+    <string name="kemi_update_error_response">The update service returned invalid data.</string>
+    <string name="kemi_update_error_download">The update could not be downloaded.</string>
+    <string name="kemi_update_error_integrity">The downloaded file failed its integrity check and was removed.</string>
+    <string name="kemi_update_error_package">The downloaded package does not match KEMI Mail.</string>
+    <string name="kemi_update_error_signature">The downloaded package is not signed by the installed KEMI Mail certificate.</string>
+    <string name="kemi_update_error_storage">There is not enough accessible storage to prepare the update.</string>
+    <string name="kemi_update_error_permission">Allow KEMI Mail to install unknown apps, then try again.</string>
+    <string name="kemi_update_error_installation">The Android package installer could not be opened.</string>
+</resources>

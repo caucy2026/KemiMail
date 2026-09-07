@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Retained as KEMI-specific fallbacks; both current product flavors use NO_FUNDING. -->
+    <string name="funding_googleplay_contribution_title">Support KEMI Mail</string>
+    <string name="funding_googleplay_contribution_header_title">Support KEMI Mail</string>
+    <string name="funding_googleplay_contribution_header_description">KEMI Mail never shows ads or sells your data. This build does not offer in-app contributions.</string>
+    <string name="funding_googleplay_contribution_header_thank_you_message">Your contribution furthers the development of secure, private and open-source email. We are truly grateful to have you with us!</string>
+    <string name="funding_googleplay_contribution_list_empty_message">Visit <xliff:g id="link_text">%s</xliff:g> for KEMI Mail project information.</string>
+    <string name="funding_googleplay_contribution_reminder_title">Support KEMI Mail</string>
+    <string name="funding_googleplay_contribution_reminder_statement">KEMI Mail is based on open-source software.</string>
+</resources>

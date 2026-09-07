@@ -1,0 +1,14 @@
+{
+  "name": "kemi-credential-relay",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Short-lived ciphertext relay for KEMI Mail credential handoff",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=22.13"
+  }
+}

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="changelog_style.xsl"?>
+<!--
+     KEMI Mail product changelog. Upstream project history remains available in Git and the source repository.
+-->
+<changelog>
+    <release version="20.1" versioncode="39040" date="2026-08-15">
+        <change>New: Introduced the KEMI Mail product name, logo, launcher icon, and blue visual identity</change>
+        <change>New: Added automatic configuration for Alibaba enterprise email accounts</change>
+        <change>Experimental: Added a single-canvas dual-screen layout for continuous inbox and message reading</change>
+        <change>Based on Thunderbird for Android and K-9 Mail open-source software</change>
+    </release>
+</changelog>

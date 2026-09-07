@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">KEMI 邮箱</string>
+    <string name="about_app_authors_k9">KEMI 邮箱团队（基于 K-9 Mail）</string>
+    <string name="about_app_authors_thunderbird">Thunderbird 移动版团队与 K-9 Mail 贡献者</string>
+    <string name="onboarding_welcome_developed_by">KEMI 系列邮箱软件，由 KEMI 邮箱团队开发。</string>
+    <string name="settings_ui_telemetry_description">此 KEMI 邮箱版本不包含遥测功能。</string>
+</resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">KEMI Mail</string>
+    <string name="about_app_authors_k9">KEMI Mail team (based on K-9 Mail)</string>
+    <string name="about_app_authors_thunderbird">Thunderbird Mobile Team and K-9 Mail contributors</string>
+    <string name="onboarding_welcome_developed_by">KEMI product-family email software, developed by the KEMI Mail team.</string>
+    <string name="settings_ui_telemetry_description">Telemetry is not included in this KEMI Mail build.</string>
+</resources>
