@@ -38,10 +38,8 @@ internal fun renderPreview(directory: Path) {
     render("compact",1000,640) { MailScreen(sample) {} }
     render("scaled-150",1980,1230,1.5f) { MailScreen(sample) {} }
     render("welcome",1320,820) { MailScreen(MailState(storageReady = true,status = "欢迎使用 KEMI 邮箱，请添加账号")) {} }
-    render("account",700,760) { AccountForm(sample.copy(editingAccount = a.copy(username = a.email,
-        imapHost = "imap.example.invalid",smtpHost = "smtp.example.invalid")),{}) }
-    render("account-servers",700,760) { AccountForm(sample.copy(editingAccount = a.copy(username = a.email,
-        imapHost = "imap.example.invalid",smtpHost = "smtp.example.invalid")),{},androidx.compose.foundation.ScrollState(Int.MAX_VALUE)) }
+    render("account",700,760) { AccountForm(sample.copy(editingAccount = MailProvider.ALIBABA.applyTo(a)),{}) }
+    render("account-servers",700,760) { AccountForm(sample.copy(editingAccount = MailProvider.ALIBABA.applyTo(a)),{},androidx.compose.foundation.ScrollState(Int.MAX_VALUE)) }
     render("compose",850,760) { ComposeForm(sample.copy(draftAccount = a,draft = ComposeDraft(to = "team@example.invalid",
         subject = "关于本周的工作安排",body = "你好，\n\n本周的工作安排已整理完成，请查阅并告知你的建议。\n\n谢谢！"))) {} }
 }

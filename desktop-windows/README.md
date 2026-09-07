@@ -2,15 +2,19 @@
 
 普通单屏 Windows 邮箱客户端，独立位于 `windows` 分支。使用 Kotlin、Compose Desktop、Koin 与协程 StateFlow，桌面设计组件复用仓库既有 K-9 主题颜色。Windows 专属入口在本目录单独构建，不加载 Android Gradle 插件，也不改动 Android 模块。
 
-## 1.1.0 界面更新
+## 1.2.0 界面更新
+
+新增阿里企业邮箱预设，使用与 Android 相同的 IMAP `imap.qiye.aliyun.com:993`、SMTP `smtp.qiye.aliyun.com:465`（TLS），支持企业自有邮箱域名，用户名为完整邮箱地址。添加账号时点击“阿里企业邮箱”，填写邮箱地址与客户端安全密码，再验证并保存。已有账号不会自动修改。参数依据[阿里官方说明](https://help.aliyun.com/zh/document_detail/36576.html)，需管理员开放 IMAP 和第三方客户端登录权限。
+
+邮箱预设采用双列卡片和明确选中状态；邮件列表增加“全部 / 未读 / 星标”分段筛选，可与搜索组合使用，仅筛选已加载邮件。
 
 采用轻量桌面邮件风格：浅灰侧栏、柔和选中态、统一线性图标工具栏、分层邮件列表和宽松阅读区；账号设置与撰写窗口使用同一组紧凑表单组件。图标操作提供中文悬停提示和无障碍名称。保留 Windows 原生窗口控制与原有账号、草稿格式。
 
-通过 `:app:renderPreview` 生成收件箱、空状态、账号设置、撰写窗口、1000×640 小窗口和 150% 缩放截图。预览仅使用合成数据，正式启动不注入演示账号或邮件。Windows 安装包版本为 1.1.0。
+通过 `:app:renderPreview` 生成收件箱、空状态、账号设置、撰写窗口、1000×640 小窗口和 150% 缩放截图。预览仅使用合成数据，正式启动不注入演示账号或邮件。Windows 安装包版本为 1.2.0。
 
 ## 功能
 
-- 多账号 IMAP/SMTP，QQ/163/126 配置快捷填充和自定义服务器。
+- 多账号 IMAP/SMTP，阿里企业邮箱/QQ/163/126 配置快捷填充和自定义服务器。
 - 强制 TLS 或 STARTTLS、证书与主机名验证，账号连接测试不会发送邮件。
 - 文件夹、最新邮件列表、分批加载至 2000 封、已加载主题和发件人搜索。
 - 文本阅读、Unicode MIME、附件保存、已读/未读、星标、安全移动至已删除。
@@ -34,7 +38,7 @@ $env:JAVA_HOME = 'C:\Program Files\Java\jdk-24'
 .\gradlew.bat -p desktop-windows :app:packageExe --console=plain
 ```
 
-应用目录为 `desktop-windows/app/build/compose/binaries/1.1.0/main/app/KemiMail`，直接运行其中的 `KemiMail.exe`。整个目录包含运行环境，不能只复制 EXE。没有 Java 的电脑也可以运行完整应用目录。安装包和应用目录目前均未进行 Authenticode 签名。
+应用目录为 `desktop-windows/app/build/compose/binaries/1.2.0/main/app/KemiMail`，直接运行其中的 `KemiMail.exe`。整个目录包含运行环境，不能只复制 EXE。没有 Java 的电脑也可以运行完整应用目录。安装包和应用目录目前均未进行 Authenticode 签名。
 
 `--self-test <temporary-directory>` 是显式无网络诊断入口，使用合成账号验证 Windows DPAPI、草稿、MIME 和打包运行环境，不读取用户真实数据。
 

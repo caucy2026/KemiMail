@@ -23,8 +23,8 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Exe)
             packageName = "KemiMail"
-            packageVersion = "1.1.0"
-            outputBaseDir.set(project.layout.buildDirectory.dir("compose/binaries/1.1.0"))
+            packageVersion = "1.2.0"
+            outputBaseDir.set(project.layout.buildDirectory.dir("compose/binaries/1.2.0"))
             description = "KEMI Mail for Windows"
             vendor = "KEMI"
             licenseFile.set(rootProject.file("../LICENSE"))

@@ -45,7 +45,7 @@ private val fullDateFormat = DateTimeFormatter.ofPattern("yyyy年M月d日  HH:mm
             Row(Modifier.fillMaxWidth().background(MailColors.wash).padding(horizontal = 16.dp,vertical = 5.dp),
                 verticalAlignment = Alignment.CenterVertically,horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Label(state.status,Modifier.weight(1f),muted = !state.error,error = state.error,small = true,maxLines = 2)
-                Label("KEMI Mail  1.1.0",muted = true,small = true)
+                Label("KEMI Mail  1.2.0",muted = true,small = true)
             }
         }
     }
@@ -100,6 +100,7 @@ private val fullDateFormat = DateTimeFormatter.ofPattern("yyyy年M月d日  HH:mm
 }
 
 @Composable private fun MailList(state: MailState,query: String,onQuery: (String) -> Unit,dispatch: (MailEvent) -> Unit) {
+    var filter by remember(state.account?.id,state.folder?.path) { mutableStateOf(MailFilter.ALL) }
     // A stable list width leaves the reading pane useful even at the supported 1000px minimum.
     Column(Modifier.width(310.dp).fillMaxHeight()) {
         Row(Modifier.fillMaxWidth().height(70.dp).padding(horizontal = 20.dp),verticalAlignment = Alignment.CenterVertically) {
@@ -110,8 +111,11 @@ private val fullDateFormat = DateTimeFormatter.ofPattern("yyyy年M月d日  HH:mm
             IconAction(MailIcon.Refresh,"刷新邮件",!state.busy && state.account != null) { dispatch(MailEvent.Refresh) }
         }
         Box(Modifier.padding(start = 16.dp,end = 16.dp,bottom = 15.dp)) { SearchField(query,onQuery) }
+        Box(Modifier.padding(start = 16.dp,end = 16.dp,bottom = 12.dp)) {
+            SegmentedChoice(MailFilter.entries.map { it.label },filter.ordinal) { filter = MailFilter.entries[it] }
+        }
         Divider()
-        val matches = state.messages.filter { query.isBlank() || it.subject.contains(query,true) || it.sender.contains(query,true) }
+        val matches = filterMessages(state.messages,query,filter)
         Box(Modifier.weight(1f)) {
             val listState = key(state.account?.id,state.folder?.path) { androidx.compose.foundation.lazy.rememberLazyListState() }
             LazyColumn(Modifier.fillMaxSize().padding(horizontal = 8.dp),state = listState,contentPadding = PaddingValues(vertical = 8.dp)) {
@@ -124,8 +128,8 @@ private val fullDateFormat = DateTimeFormatter.ofPattern("yyyy年M月d日  HH:mm
                     Column(Modifier.fillMaxWidth().padding(vertical = 48.dp,horizontal = 22.dp),horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         Glyph(if (query.isBlank()) MailIcon.Inbox else MailIcon.Search,Modifier.size(28.dp),MailColors.line)
-                        Label(if (query.isBlank()) "这里还没有邮件" else "没有匹配的邮件",muted = true)
-                        Label(if (query.isBlank()) "添加账号后，刷新即可收取邮件" else "试试其他主题或发件人",muted = true,small = true)
+                        Label(if (query.isBlank() && filter == MailFilter.ALL) "这里还没有邮件" else "没有匹配的邮件",muted = true)
+                        Label(if (state.account == null) "添加账号后，刷新即可收取邮件" else "尝试刷新、切换筛选或修改搜索词",muted = true,small = true)
                     }
                 }
             }
@@ -223,12 +227,23 @@ private val fullDateFormat = DateTimeFormatter.ofPattern("yyyy年M月d日  HH:mm
                 Column(Modifier.fillMaxSize().verticalScroll(scroll).padding(horizontal = 24.dp),verticalArrangement = Arrangement.spacedBy(14.dp)) {
                     Card(Modifier.fillMaxWidth()) {
                         Label("邮箱账号",strong = true)
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            listOf("QQ 邮箱" to "qq.com","网易 163" to "163.com","网易 126" to "126.com").forEach { (label,domain) ->
-                                Action(label,enabled) { account = account.copy(imapHost = "imap.$domain",smtpHost = "smtp.$domain",
-                                    imapSecurity = Security.TLS,smtpSecurity = Security.TLS); imapPort = "993"; smtpPort = "465" }
+                        Label("选择邮箱服务商，自动填入服务器设置",small = true,muted = true)
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            MailProvider.entries.chunked(2).forEach { providers ->
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    providers.forEach { provider ->
+                                        ProviderChoice(provider.label,provider.subtitle,
+                                            provider.matches(account,imapPort,smtpPort),enabled,Modifier.weight(1f)) {
+                                            account = provider.applyTo(account)
+                                            imapPort = account.imapPort.toString(); smtpPort = account.smtpPort.toString()
+                                        }
+                                    }
+                                }
                             }
                         }
+                        if (MailProvider.ALIBABA.matches(account,imapPort,smtpPort)) {
+                            Label("支持企业自有域名。请由管理员开启 IMAP 和第三方客户端登录权限，并使用客户端安全密码。",small = true,muted = true)
+                        } else Label("也可在下方手动填写其他邮箱的服务器。",small = true,muted = true)
                         Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                             Field(account.name,{ account = account.copy(name = it) },"显示名称",Modifier.weight(1f),enabled = enabled)
                             Field(account.email,{ val old = account.email; account = account.copy(email = it,

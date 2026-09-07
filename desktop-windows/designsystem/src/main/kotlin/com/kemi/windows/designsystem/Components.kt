@@ -176,3 +176,28 @@ object MailColors {
         shape = RoundedCornerShape(16.dp),containerColor = Color.White,
         confirmButton = { Action("确认",primary = true,onClick = onConfirm) },dismissButton = { Action("取消",onClick = onDismiss) })
 }
+
+@Composable fun ProviderChoice(title: String,subtitle: String,selected: Boolean,enabled: Boolean,
+                               modifier: Modifier = Modifier,onClick: () -> Unit) {
+    Surface(onClick,modifier,enabled,shape = RoundedCornerShape(10.dp),
+        border = BorderStroke(1.dp,if (selected) MailColors.blue.copy(alpha = .5f) else MailColors.line),
+        color = if (selected) MailColors.selection else MailColors.wash) {
+        Row(Modifier.padding(12.dp),verticalAlignment = Alignment.CenterVertically,horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Glyph(if (selected) MailIcon.Check else MailIcon.Mail,Modifier.size(20.dp),if (selected) MailColors.blue else MailColors.secondary)
+            Column(Modifier.weight(1f)) { Label(title,strong = true,maxLines = 1); Label(subtitle,small = true,muted = true,maxLines = 1) }
+        }
+    }
+}
+
+@Composable fun SegmentedChoice(labels: List<String>,selected: Int,onSelect: (Int) -> Unit) {
+    Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(Color(0xFFF0F1F4)).padding(3.dp),
+        horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+        labels.forEachIndexed { index,label ->
+            Surface({ onSelect(index) },Modifier.weight(1f),shape = RoundedCornerShape(6.dp),
+                color = if (index == selected) Color.White else Color.Transparent,
+                shadowElevation = if (index == selected) 1.dp else 0.dp) {
+                Box(Modifier.padding(vertical = 5.dp),contentAlignment = Alignment.Center) { Label(label,small = true,strong = index == selected,muted = index != selected) }
+            }
+        }
+    }
+}
