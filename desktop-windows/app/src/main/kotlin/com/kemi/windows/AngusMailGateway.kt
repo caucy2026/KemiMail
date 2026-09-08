@@ -10,8 +10,21 @@ import org.jsoup.Jsoup
 import java.util.Date
 import java.util.Properties
 import java.io.ByteArrayOutputStream
+import java.nio.charset.Charset
 
 class AngusMailGateway : MailGateway {
+    private var activeAccount: Account? = null
+    private var activeStore: IMAPStore? = null
+    internal var connectionCount = 0
+        private set
+
+    @Synchronized private fun closeConnection() {
+        val old = activeStore
+        activeStore = null; activeAccount = null
+        if (old != null) runCatching { old.close() }
+    }
+    override suspend fun disconnect() = withContext(Dispatchers.IO) { closeConnection() }
+
     internal fun properties(account: Account) = Properties().apply {
         for ((protocol, security) in listOf("imap" to account.imapSecurity, "smtp" to account.smtpSecurity)) {
             setProperty("mail.$protocol.ssl.enable", (security == Security.TLS).toString())
@@ -27,18 +40,24 @@ class AngusMailGateway : MailGateway {
         setProperty("mail.smtp.sendpartial", "false")
         setProperty("mail.imap.peek", "true")
         setProperty("mail.imap.connectionpoolsize", "1")
+        setProperty("mail.imap.fetchsize", "262144")
         setProperty("mail.debug", "false")
     }
     private fun session(account: Account) = Session.getInstance(properties(account))
-    private fun <T> connected(account: Account, block: (IMAPStore) -> T): T {
+    // All operations serialize on this gateway. Reuse authenticated TLS connections, never replay writes.
+    @Synchronized private fun <T> connected(account: Account, block: (IMAPStore) -> T): T {
         account.validate()
-        val store = session(account).getStore("imap") as IMAPStore
         try {
-            store.connect(account.imapHost, account.imapPort, account.username, account.password)
-            // QQ IMAP requires an ID command, containing product identity only.
-            if (store.hasCapability("ID")) store.id(mapOf("name" to "KemiMail", "version" to "1.0.0"))
-            return block(store)
-        } finally { runCatching { store.close() } }
+            if (activeAccount != account || activeStore?.isConnected != true) {
+                closeConnection()
+                val store = session(account).getStore("imap") as IMAPStore
+                activeStore = store
+                store.connect(account.imapHost, account.imapPort, account.username, account.password)
+                if (store.hasCapability("ID")) store.id(mapOf("name" to "KEMI邮箱", "version" to "1.3.0"))
+                activeAccount = account; connectionCount++
+            }
+            return block(checkNotNull(activeStore))
+        } catch (e: Exception) { closeConnection(); throw e }
     }
     private fun <T> inFolder(store: IMAPStore, path: String, writable: Boolean = false, block: (IMAPFolder) -> T): T {
         val folder = store.getFolder(path) as IMAPFolder
@@ -91,12 +110,30 @@ class AngusMailGateway : MailGateway {
         connected(account) { store -> inFolder(store, folder) { f ->
             val m = find(f, mail)
             if (m.size > MAX_MESSAGE_BYTES) throw MailFailure("邮件超过 20 MB，请使用网页版查看")
-            val parsed = parseContent(m)
+            val parsed = parseContent(m,loadAttachments = false)
             MailDetail(mail, m.getRecipients(Message.RecipientType.TO)?.joinToString { displayAddress(it) } ?: "",
                 m.replyTo?.joinToString { (it as? InternetAddress)?.address ?: it.toString() } ?: "",
                 m.getHeader("Message-ID")?.firstOrNull(), parsed.first, parsed.second)
         } }
     }
+    override suspend fun attachment(account: Account, folder: String, mail: MailSummary, attachment: Attachment): ByteArray =
+        withContext(Dispatchers.IO) {
+            val path = attachment.partPath ?: return@withContext attachment.bytes
+            require(path.size <= 20 && path.all { it in 0..199 })
+            connected(account) { store -> inFolder(store,folder) { f ->
+                var part: Part = find(f,mail)
+                path.forEach { index ->
+                    val multipart = part.content as? Multipart ?: throw MailFailure("附件已变化，请重新打开邮件")
+                    if (index >= multipart.count) throw MailFailure("附件已变化，请重新打开邮件")
+                    part = multipart.getBodyPart(index)
+                }
+                part.inputStream.use { input ->
+                    val bytes = input.readNBytes(MAX_MESSAGE_BYTES.toInt() + 1)
+                    if (bytes.size > MAX_MESSAGE_BYTES) throw MailFailure("附件超过 20 MB，请使用网页版下载")
+                    bytes
+                }
+            } }
+        }
     override suspend fun flag(account: Account, folder: String, mail: MailSummary, seen: Boolean?, starred: Boolean?) =
         withContext(Dispatchers.IO) {
             connected(account) { store -> inFolder(store, folder, true) { f ->
@@ -164,7 +201,7 @@ internal fun buildMessage(session: Session, account: Account, draft: ComposeDraf
 }
 
 /** No HTML renderer, remote URLs, scripts, or automatic attachment execution. */
-internal fun parseContent(root: Part): Pair<String,List<Attachment>> {
+internal fun parseContent(root: Part, loadAttachments: Boolean = true): Pair<String,List<Attachment>> {
     val attachments = mutableListOf<Attachment>()
     var consumed = 0L
     var parts = 0
@@ -181,26 +218,27 @@ internal fun parseContent(root: Part): Pair<String,List<Attachment>> {
         }
         return output.toByteArray()
     }
-    fun visit(part: Part, depth: Int): String {
+    fun visit(part: Part, depth: Int, path: List<Int>): String {
         if (depth > 20 || ++parts > 200) throw MailFailure("邮件结构过于复杂，请使用网页版查看")
         if (part.disposition.equals(Part.ATTACHMENT,true) || part.fileName != null) {
-            attachments.add(Attachment(safeAttachmentName(part.fileName ?: "attachment"), bytes(part)))
+            val name = part.fileName?.let { runCatching { MimeUtility.decodeText(it) }.getOrDefault(it) } ?: "attachment"
+            attachments.add(Attachment(safeAttachmentName(name),if (loadAttachments) bytes(part) else byteArrayOf(),
+                if (loadAttachments) null else path,part.size))
             return ""
         }
         if (part.isMimeType("multipart/*")) {
             val multi = part.content as Multipart
             if (multi.count > 200) throw MailFailure("邮件包含过多内容片段")
             if (part.isMimeType("multipart/alternative")) {
-                val preferred = (0 until multi.count).map { multi.getBodyPart(it) }
-                    .firstOrNull { it.isMimeType("text/plain") }
-                if (preferred != null) return visit(preferred,depth+1)
+                val preferred = (0 until multi.count).firstOrNull { multi.getBodyPart(it).isMimeType("text/plain") }
+                if (preferred != null) return visit(multi.getBodyPart(preferred),depth+1,path + preferred)
             }
-            return (0 until multi.count).joinToString("\n") { visit(multi.getBodyPart(it),depth+1) }
+            return (0 until multi.count).joinToString("\n") { visit(multi.getBodyPart(it),depth+1,path + it) }
         }
         if (part.isMimeType("text/*")) {
-            val charset = runCatching { ContentType(part.contentType).getParameter("charset")?.let { charset(it) } }
-                .getOrNull() ?: Charsets.UTF_8
-            val text = bytes(part).toString(charset)
+            val data = bytes(part)
+            val declared = runCatching { ContentType(part.contentType).getParameter("charset") }.getOrNull()
+            val text = decodeMailText(data,declared,part.isMimeType("text/html"))
             return if (part.isMimeType("text/html")) Jsoup.parse(text).apply {
                 select("script,style,iframe,object,embed").remove()
                 select("br").append("\n"); select("p,div,tr,li").prepend("\n")
@@ -208,5 +246,18 @@ internal fun parseContent(root: Part): Pair<String,List<Attachment>> {
         }
         return ""
     }
-    return visit(root,0).ifBlank { "（此邮件没有可显示的文本正文）" } to attachments
+    return visit(root,0,emptyList()).ifBlank { "（此邮件没有可显示的文本正文）" } to attachments
+}
+
+/** Honor explicit charsets. Unknown encodings must not silently become corrupted UTF-8. */
+internal fun decodeMailText(data: ByteArray,declared: String?,html: Boolean): String {
+    val encoding = declared?.takeIf { it.isNotBlank() }?.let {
+        runCatching { Charset.forName(MimeUtility.javaCharset(it)) }.getOrElse {
+            throw MailFailure("此邮件使用了暂不支持的字符编码，请使用网页版查看")
+        }
+    }
+    if (encoding != null) return data.toString(encoding)
+    // jsoup detects BOM/meta charset without loading any external resources.
+    if (html) return Jsoup.parse(data.inputStream(),null,"").outerHtml()
+    return data.toString(Charsets.UTF_8)
 }

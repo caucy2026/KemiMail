@@ -18,7 +18,7 @@ internal fun renderPreview(directory: Path) {
     Files.createDirectories(directory)
     val a = Account(name = "演示邮箱", email = "demo@example.invalid")
     val inbox = MailFolder("INBOX","收件箱")
-    val summary = MailSummary(1,1,"欢迎使用 KEMI Windows 邮箱","KEMI 产品团队",Instant.parse("2026-09-07T02:00:00Z"),false,true)
+    val summary = MailSummary(1,1,"欢迎使用 KEMI邮箱","KEMI 产品团队",Instant.parse("2026-09-07T02:00:00Z"),false,true)
     val sample = MailState(accounts = listOf(a),account = a,folders = listOf(inbox,MailFolder("Sent","已发送",sent = true),MailFolder("Trash","已删除",trash = true)),
         folder = inbox,messages = listOf(summary,summary.copy(uid = 2,subject = "本周工作安排",sender = "项目协作组",starred = false),
             summary.copy(uid = 3,subject = "设计评审反馈与下一步安排",sender = "设计团队",starred = false,seen = true),
@@ -37,7 +37,7 @@ internal fun renderPreview(directory: Path) {
     render("inbox",1320,820) { MailScreen(sample) {} }
     render("compact",1000,640) { MailScreen(sample) {} }
     render("scaled-150",1980,1230,1.5f) { MailScreen(sample) {} }
-    render("welcome",1320,820) { MailScreen(MailState(storageReady = true,status = "欢迎使用 KEMI 邮箱，请添加账号")) {} }
+    render("welcome",1320,820) { MailScreen(MailState(storageReady = true,status = "欢迎使用 KEMI邮箱，请添加账号")) {} }
     render("account",700,760) { AccountForm(sample.copy(editingAccount = MailProvider.ALIBABA.applyTo(a)),{}) }
     render("account-servers",700,760) { AccountForm(sample.copy(editingAccount = MailProvider.ALIBABA.applyTo(a)),{},androidx.compose.foundation.ScrollState(Int.MAX_VALUE)) }
     render("compose",850,760) { ComposeForm(sample.copy(draftAccount = a,draft = ComposeDraft(to = "team@example.invalid",

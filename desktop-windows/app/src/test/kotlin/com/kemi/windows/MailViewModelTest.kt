@@ -8,6 +8,7 @@ import assertk.assertThat
 import assertk.assertions.*
 
 private class FakeGateway : MailGateway {
+    var readCount = 0
     var sendCount = 0
     var sendFailure: MailFailure? = null
     var readGate: CompletableDeferred<Unit>? = null
@@ -16,6 +17,7 @@ private class FakeGateway : MailGateway {
     override suspend fun folders(account: Account) = listOf(MailFolder("INBOX","收件箱"))
     override suspend fun list(account: Account,folder: String,limit: Int) = listOf(summary)
     override suspend fun read(account: Account,folder: String,mail: MailSummary): MailDetail {
+        readCount++
         readGate?.await()
         return MailDetail(summary,"fixture@example.invalid","fixture@example.invalid",null,"Synthetic",emptyList())
     }
@@ -67,6 +69,15 @@ class MailViewModelTest {
         assertThat(testSubject.state.value.account?.id).isEqualTo(account.id)
         gate.complete(Unit); testSubject.idle()
         assertThat(testSubject.state.value.detail?.summary?.uid).isEqualTo(1L)
+    }
+    @Test fun `reopening a message uses cache and refresh invalidates it`() = test { testSubject,gateway,_,_ ->
+        testSubject.dispatch(MailEvent.Refresh); testSubject.idle()
+        val mail = testSubject.state.value.messages.single()
+        repeat(2) { testSubject.dispatch(MailEvent.Read(mail)); testSubject.idle() }
+        assertThat(gateway.readCount).isEqualTo(1)
+        testSubject.dispatch(MailEvent.Refresh); testSubject.idle()
+        testSubject.dispatch(MailEvent.Read(mail)); testSubject.idle()
+        assertThat(gateway.readCount).isEqualTo(2)
     }
     @Test fun `closing compose saves the current draft and restores it next time`() = test { testSubject,_,vault,account ->
         val draft = ComposeDraft(to = account.email,body = "Synthetic draft")

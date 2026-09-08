@@ -38,14 +38,20 @@ private val fullDateFormat = DateTimeFormatter.ofPattern("yyyy年M月d日  HH:mm
                     ReaderToolbar(state,dispatch) { deleteConfirm = true }
                     Divider()
                     if (state.busy) Busy() else Spacer(Modifier.height(2.dp))
-                    state.detail?.let { Reader(it,state,dispatch) } ?: EmptyReader(state,dispatch)
+                    state.detail?.let { Reader(it,state,dispatch) } ?: run {
+                        if (state.loadingMail != null) Column(Modifier.fillMaxSize().padding(30.dp),verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                            Label(state.loadingMail.subject,title = true,maxLines = 3)
+                            Label("正在读取正文…",muted = true)
+                            Label("附件将在点击保存时下载",small = true,muted = true)
+                        } else EmptyReader(state,dispatch)
+                    }
                 }
             }
             Divider()
             Row(Modifier.fillMaxWidth().background(MailColors.wash).padding(horizontal = 16.dp,vertical = 5.dp),
                 verticalAlignment = Alignment.CenterVertically,horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Label(state.status,Modifier.weight(1f),muted = !state.error,error = state.error,small = true,maxLines = 2)
-                Label("KEMI Mail  1.2.0",muted = true,small = true)
+                Label("KEMI邮箱  1.3.0",muted = true,small = true)
             }
         }
     }
@@ -53,12 +59,12 @@ private val fullDateFormat = DateTimeFormatter.ofPattern("yyyy年M月d日  HH:mm
             deleteConfirm = false; dispatch(MailEvent.Trash)
         }
         if (state.accountDialog) DialogWindow(onCloseRequest = { if (!state.busy) dispatch(MailEvent.CancelAccount) },
-            title = "邮箱账号设置",state = rememberDialogState(width = 700.dp,height = 760.dp)) {
+            title = "KEMI邮箱 · 账号设置",icon = kemiMailPainter(),state = rememberDialogState(width = 700.dp,height = 760.dp)) {
             window.minimumSize = java.awt.Dimension(600,560)
             AccountForm(state,dispatch)
         }
         if (state.draft != null) DialogWindow(onCloseRequest = { if (!state.busy) dispatch(MailEvent.CloseDraft) },
-            title = "撰写邮件",state = rememberDialogState(width = 850.dp,height = 760.dp)) {
+            title = "KEMI邮箱 · 撰写邮件",icon = kemiMailPainter(),state = rememberDialogState(width = 850.dp,height = 760.dp)) {
             window.minimumSize = java.awt.Dimension(680,540)
             ComposeForm(state,dispatch)
         }
@@ -70,7 +76,7 @@ private val fullDateFormat = DateTimeFormatter.ofPattern("yyyy年M月d日  HH:mm
         Column(Modifier.fillMaxSize()) {
             Row(Modifier.height(70.dp).padding(horizontal = 20.dp),verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                BrandMark(); Label("KEMI Mail",strong = true)
+                BrandMark(); Label("KEMI邮箱",strong = true)
             }
             Column(Modifier.padding(horizontal = 13.dp)) {
                 Label("账号",Modifier.padding(9.dp,8.dp),small = true,muted = true,strong = true)
@@ -121,7 +127,7 @@ private val fullDateFormat = DateTimeFormatter.ofPattern("yyyy年M月d日  HH:mm
             LazyColumn(Modifier.fillMaxSize().padding(horizontal = 8.dp),state = listState,contentPadding = PaddingValues(vertical = 8.dp)) {
                 items(matches,key = { "${it.validity}:${it.uid}" }) { m ->
                     MessageRow(m.sender,m.subject,m.date?.let { dateFormat.format(it) } ?: "",m.seen,m.starred,
-                        state.detail?.summary?.uid == m.uid,!state.busy) { dispatch(MailEvent.Read(m)) }
+                        (state.loadingMail?.uid ?: state.detail?.summary?.uid) == m.uid,!state.busy) { dispatch(MailEvent.Read(m)) }
                     Box(Modifier.padding(start = 22.dp,end = 13.dp)) { Divider() }
                 }
                 if (matches.isEmpty()) item {
@@ -163,7 +169,7 @@ private val fullDateFormat = DateTimeFormatter.ofPattern("yyyy年M月d日  HH:mm
     Column(Modifier.fillMaxSize().padding(32.dp),verticalArrangement = Arrangement.Center,horizontalAlignment = Alignment.CenterHorizontally) {
         BrandMark(large = true)
         Spacer(Modifier.height(24.dp))
-        Label(if (state.accounts.isEmpty()) "欢迎使用 KEMI Mail" else "每封邮件，清晰呈现",title = true)
+        Label(if (state.accounts.isEmpty()) "欢迎使用 KEMI邮箱" else "每封邮件，清晰呈现",title = true)
         Spacer(Modifier.height(10.dp))
         Label(if (state.accounts.isEmpty()) "连接你的邮箱，开始从容处理邮件。" else "从左侧列表选择一封邮件，开始阅读。",muted = true)
         if (state.accounts.isEmpty()) {
@@ -197,7 +203,7 @@ private val fullDateFormat = DateTimeFormatter.ofPattern("yyyy年M月d日  HH:mm
             Column(Modifier.heightIn(max = 150.dp).verticalScroll(rememberScrollState()),verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Label("${detail.attachments.size} 个附件",muted = true,small = true,strong = true)
                 detail.attachments.forEach { attachment ->
-                    Action("${attachment.name}  ·  ${attachment.bytes.size / 1024} KB",!state.busy,icon = MailIcon.Attach) {
+                    Action("${attachment.name}  ·  ${if (attachment.encodedSize >= 0) "约 ${attachment.encodedSize / 1024} KB" else "附件"}",!state.busy,icon = MailIcon.Attach) {
                         val dialog = FileDialog(null as Frame?,"保存附件",FileDialog.SAVE)
                         try { dialog.file = attachment.name; dialog.isVisible = true
                             if (dialog.file != null) dispatch(MailEvent.SaveAttachment(attachment,Path.of(dialog.directory,dialog.file)))

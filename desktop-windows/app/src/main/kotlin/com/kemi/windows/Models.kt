@@ -47,7 +47,7 @@ fun addresses(value: String): List<InternetAddress> {
 data class MailFolder(val path: String, val label: String, val trash: Boolean = false, val sent: Boolean = false)
 data class MailSummary(val uid: Long, val validity: Long, val subject: String, val sender: String,
                        val date: Instant?, val seen: Boolean, val starred: Boolean)
-data class Attachment(val name: String, val bytes: ByteArray) {
+data class Attachment(val name: String, val bytes: ByteArray, val partPath: List<Int>? = null, val encodedSize: Int = bytes.size) {
     override fun toString() = "Attachment(size=${bytes.size})"
 }
 data class MailDetail(val summary: MailSummary, val to: String, val replyTo: String, val messageId: String?,
@@ -71,6 +71,8 @@ interface MailGateway {
     suspend fun folders(account: Account): List<MailFolder>
     suspend fun list(account: Account, folder: String, limit: Int): List<MailSummary>
     suspend fun read(account: Account, folder: String, mail: MailSummary): MailDetail
+    suspend fun attachment(account: Account, folder: String, mail: MailSummary, attachment: Attachment): ByteArray = attachment.bytes
+    suspend fun disconnect() = Unit
     suspend fun flag(account: Account, folder: String, mail: MailSummary, seen: Boolean? = null, starred: Boolean? = null)
     suspend fun trash(account: Account, folder: String, mail: MailSummary, destination: String)
     suspend fun send(account: Account, draft: ComposeDraft): SendResult

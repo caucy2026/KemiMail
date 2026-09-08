@@ -64,17 +64,28 @@ class MailIntegrationTest {
                     val result = testSubject.send(account,ComposeDraft(to = account.email,subject = "协议测试",body = "Synthetic TLS content"))
                     assertThat(result.savedToSent).isTrue()
                     assertThat(testSubject.folders(account).map { it.label }).contains("收件箱")
+                    val established = testSubject.connectionCount
                     val messages = testSubject.list(account,"INBOX",100)
                     assertThat(messages).hasSize(1)
                     val message = messages.single()
                     assertThat(message.subject).isEqualTo("协议测试")
                     assertThat(testSubject.read(account,"INBOX",message).body).contains("Synthetic TLS content")
+                    assertEquals(established,testSubject.connectionCount,"list and read must reuse the authenticated connection")
                     assertThat(testSubject.list(account,"INBOX",100).single().seen).isFalse()
+                    val attachmentFile = Files.createTempFile(dir,"synthetic-", ".txt")
+                    Files.writeString(attachmentFile,"附件内容".repeat(10000))
+                    testSubject.send(account,ComposeDraft(to = account.email,subject = "Attachment",body = "正文",files = listOf(attachmentFile)))
+                    val withAttachment = testSubject.list(account,"INBOX",100).first()
+                    val detail = testSubject.read(account,"INBOX",withAttachment)
+                    assertTrue(detail.body.contains("正文"))
+                    assertEquals(0,detail.attachments.single().bytes.size)
+                    assertContentEquals(Files.readAllBytes(attachmentFile),testSubject.attachment(account,"INBOX",withAttachment,detail.attachments.single()))
                     testSubject.flag(account,"INBOX",message,seen = true,starred = true)
-                    val updated = testSubject.list(account,"INBOX",100).single()
+                    val updated = testSubject.list(account,"INBOX",100).first { it.uid == message.uid }
                     assertThat(updated.seen).isTrue(); assertThat(updated.starred).isTrue()
                     assertFailsWith<MailFailure> { testSubject.read(account,"INBOX",message.copy(validity = message.validity + 1)) }
-                    assertThat(testSubject.list(account,"Sent",100)).hasSize(1)
+                    assertThat(testSubject.list(account,"Sent",100)).hasSize(2)
+                    testSubject.disconnect()
                 } finally { server.stop() }
             }
         } finally {

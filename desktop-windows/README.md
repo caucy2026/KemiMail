@@ -1,6 +1,14 @@
-# KEMI Mail for Windows
+# KEMI邮箱 Windows 版
 
 普通单屏 Windows 邮箱客户端，独立位于 `windows` 分支。使用 Kotlin、Compose Desktop、Koin 与协程 StateFlow，桌面设计组件复用仓库既有 K-9 主题颜色。Windows 专属入口在本目录单独构建，不加载 Android Gradle 插件，也不改动 Android 模块。
+
+## 1.3.0 修复
+
+- 程序、标题栏、任务栏、安装器及应用内统一为“KEMI邮箱”，使用 Android 同源启动图标。内部数据目录仍保留 `%LOCALAPPDATA%\KemiMail`，兼容原有账号、草稿与单实例锁。
+- 安装运行时补齐 `jdk.charsets`，支持 GB2312、GBK、GB18030、Big5；附件名先进行 MIME 解码再做文件名安全处理。不支持的显式编码会提示错误，不再静默当成 UTF-8。
+- IMAP 连接复用，读取分块由默认 16 KB 调整为 256 KB。正文读取只获取附件元数据，点击保存时才下载附件；仍使用 PEEK，不因阅读自动标记已读。
+- 已打开邮件仅在内存缓存，最多 40 封 / 16 MiB，5 分钟过期；按账号、文件夹、UIDVALIDITY、UID 隔离，刷新、账号修改、移除和删除后失效。所有发送和修改操作不自动重试。
+- 打包后自检覆盖中文字符集、GB2312 编码附件名、图标资源，避免仅完整 JDK 上的单元测试通过而裁剪后的运行时缺模块。
 
 ## 1.2.0 界面更新
 
@@ -10,7 +18,7 @@
 
 采用轻量桌面邮件风格：浅灰侧栏、柔和选中态、统一线性图标工具栏、分层邮件列表和宽松阅读区；账号设置与撰写窗口使用同一组紧凑表单组件。图标操作提供中文悬停提示和无障碍名称。保留 Windows 原生窗口控制与原有账号、草稿格式。
 
-通过 `:app:renderPreview` 生成收件箱、空状态、账号设置、撰写窗口、1000×640 小窗口和 150% 缩放截图。预览仅使用合成数据，正式启动不注入演示账号或邮件。Windows 安装包版本为 1.2.0。
+通过 `:app:renderPreview` 生成收件箱、空状态、账号设置、撰写窗口、1000×640 小窗口和 150% 缩放截图。预览仅使用合成数据，正式启动不注入演示账号或邮件。Windows 安装包版本为 1.3.0。
 
 ## 功能
 
@@ -38,7 +46,7 @@ $env:JAVA_HOME = 'C:\Program Files\Java\jdk-24'
 .\gradlew.bat -p desktop-windows :app:packageExe --console=plain
 ```
 
-应用目录为 `desktop-windows/app/build/compose/binaries/1.2.0/main/app/KemiMail`，直接运行其中的 `KemiMail.exe`。整个目录包含运行环境，不能只复制 EXE。没有 Java 的电脑也可以运行完整应用目录。安装包和应用目录目前均未进行 Authenticode 签名。
+应用目录为 `desktop-windows/app/build/compose/binaries/1.3.0/main/app/KEMI邮箱`，直接运行其中的 `KEMI邮箱.exe`。整个目录包含运行环境，不能只复制 EXE。没有 Java 的电脑也可以运行完整应用目录。安装包和应用目录目前均未进行 Authenticode 签名。
 
 `--self-test <temporary-directory>` 是显式无网络诊断入口，使用合成账号验证 Windows DPAPI、草稿、MIME 和打包运行环境，不读取用户真实数据。
 

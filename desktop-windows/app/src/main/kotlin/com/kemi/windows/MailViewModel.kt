@@ -14,6 +14,7 @@ data class MailState(
     val accounts: List<Account> = emptyList(), val account: Account? = null,
     val folders: List<MailFolder> = emptyList(), val folder: MailFolder? = null,
     val messages: List<MailSummary> = emptyList(), val detail: MailDetail? = null,
+    val loadingMail: MailSummary? = null,
     val limit: Int = 100, val busy: Boolean = false, val status: String = "正在加载本地账号…",
     val error: Boolean = false, val storageReady: Boolean = false,
     val editingAccount: Account? = null, val accountDialog: Boolean = false,
@@ -42,12 +43,13 @@ sealed interface MailEvent {
 
 class MailViewModel(private val gateway: MailGateway, private val vault: AccountVault,
                     private val scope: CoroutineScope) {
+    private val readCache = MailReadCache()
     private val mutableState = MutableStateFlow(MailState())
     val state = mutableState.asStateFlow()
     init { work("正在加载本地账号…") {
         val accounts = withContext(Dispatchers.IO) { vault.load() }
         mutableState.update { it.copy(accounts = accounts, account = accounts.firstOrNull(), storageReady = true,
-            status = if (accounts.isEmpty()) "欢迎使用 KEMI 邮箱，请添加账号" else "账号已加载，点击刷新收取邮件") }
+            status = if (accounts.isEmpty()) "欢迎使用 KEMI邮箱，请添加账号" else "账号已加载，点击刷新收取邮件") }
     } }
     private fun work(message: String, block: suspend () -> Unit) {
         if (state.value.busy) return
@@ -56,7 +58,7 @@ class MailViewModel(private val gateway: MailGateway, private val vault: Account
             try { block() }
             catch (e: CancellationException) { throw e }
             catch (e: Exception) { mutableState.update { it.copy(error = true, status = userError(e)) } }
-            finally { mutableState.update { it.copy(busy = false) } }
+            finally { mutableState.update { it.copy(busy = false, loadingMail = null) } }
         }
     }
     fun dispatch(event: MailEvent) {
@@ -80,8 +82,8 @@ class MailViewModel(private val gateway: MailGateway, private val vault: Account
                 mutableState.update { it.copy(messages = messages, status = "已加载 ${messages.size} 封邮件") }
             } }
             is MailEvent.Read -> current.account?.let { a -> current.folder?.let { f -> work("正在读取邮件…") {
-                mutableState.update { it.copy(detail = null) }
-                val detail = gateway.read(a,f.path,event.mail)
+                mutableState.update { it.copy(detail = null, loadingMail = event.mail) }
+                val detail = readCache.get(a.id,f.path,event.mail) ?: gateway.read(a,f.path,event.mail).also { readCache.put(a.id,f.path,it) }
                 mutableState.update { it.copy(detail = detail, status = "邮件已打开 · 远程内容已禁用") }
             } } }
             is MailEvent.EditAccount -> if (current.storageReady) mutableState.update {
@@ -90,6 +92,7 @@ class MailViewModel(private val gateway: MailGateway, private val vault: Account
             MailEvent.CancelAccount -> mutableState.update { it.copy(accountDialog = false, editingAccount = null) }
             is MailEvent.SaveAccount -> if (current.storageReady) work("正在验证 IMAP 和 SMTP 连接…") {
                 event.account.validate(); gateway.check(event.account)
+                readCache.clear()
                 val accounts = current.accounts.filterNot { it.id == event.account.id } + event.account
                 withContext(Dispatchers.IO) { vault.save(accounts) }
                 mutableState.update { it.copy(accounts = accounts, account = event.account, accountDialog = false,
@@ -97,8 +100,10 @@ class MailViewModel(private val gateway: MailGateway, private val vault: Account
                 refresh(event.account)
             }
             is MailEvent.RemoveAccount -> work("正在移除本地账号…") {
+                readCache.clear()
                 val accounts = current.accounts.filterNot { it.id == event.account.id }
                 withContext(Dispatchers.IO) { vault.save(accounts); vault.deleteDraft(event.account.id) }
+                gateway.disconnect()
                 mutableState.update { it.copy(accounts = accounts, account = accounts.firstOrNull(), folders = emptyList(),
                     folder = null, messages = emptyList(), detail = null, accountDialog = false,
                     status = "已移除本地账号，服务器上的邮件保持不变") }
@@ -116,6 +121,7 @@ class MailViewModel(private val gateway: MailGateway, private val vault: Account
                     val trash = current.folders.firstOrNull { it.trash } ?: throw MailFailure("未找到已删除文件夹，请在网页版操作")
                     if (f.path == trash.path) throw MailFailure("邮件已在已删除文件夹中，不提供永久删除操作")
                     gateway.trash(a,f.path,d.summary,trash.path)
+                    readCache.clear()
                     mutableState.update { it.copy(detail = null, messages = it.messages.filterNot { m -> m.uid == d.summary.uid },
                         status = "邮件已移至已删除文件夹") }
                 }
@@ -151,10 +157,16 @@ class MailViewModel(private val gateway: MailGateway, private val vault: Account
                 catch (_: Exception) { mutableState.update { it.copy(error = true,
                     status = "邮件已发送，但本地草稿未能清理。下次恢复草稿时请勿重复发送。") } }
             } } }
-            is MailEvent.SaveAttachment -> work("正在保存附件…") {
+            is MailEvent.SaveAttachment -> work("正在下载并保存附件…") {
+                val bytes = if (event.attachment.partPath == null) event.attachment.bytes else {
+                    val account = current.account ?: throw MailFailure("请先选择邮箱")
+                    val folder = current.folder ?: throw MailFailure("请先选择文件夹")
+                    val detail = current.detail ?: throw MailFailure("请先打开邮件")
+                    gateway.attachment(account,folder.path,detail.summary,event.attachment)
+                }
                 withContext(Dispatchers.IO) {
                     val temp = Files.createTempFile(event.path.toAbsolutePath().parent,"kemimail-", ".tmp")
-                    try { Files.write(temp,event.attachment.bytes)
+                    try { Files.write(temp,bytes)
                         Files.move(temp,event.path,StandardCopyOption.REPLACE_EXISTING)
                     } finally { Files.deleteIfExists(temp) }
                 }
@@ -163,6 +175,7 @@ class MailViewModel(private val gateway: MailGateway, private val vault: Account
         }
     }
     private suspend fun refresh(a: Account) {
+        readCache.clear()
         val folders = gateway.folders(a)
         val folder = folders.firstOrNull { it.path == state.value.folder?.path } ?: folders.firstOrNull()
         mutableState.update { it.copy(folders = folders, folder = folder, detail = null, messages = emptyList()) }
@@ -175,7 +188,7 @@ class MailViewModel(private val gateway: MailGateway, private val vault: Account
     }
     fun close(onClosed: () -> Unit) {
         if (state.value.busy) return
-        work("正在保存并退出…") { saveDraft(); onClosed() }
+        work("正在保存并退出…") { saveDraft(); readCache.clear(); gateway.disconnect(); onClosed() }
     }
 }
 internal fun userError(error: Exception): String = when (error) {

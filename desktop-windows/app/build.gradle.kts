@@ -22,14 +22,14 @@ compose.desktop {
         jvmArgs += listOf("-Dfile.encoding=UTF-8", "--enable-native-access=ALL-UNNAMED")
         nativeDistributions {
             targetFormats(TargetFormat.Exe)
-            packageName = "KemiMail"
-            packageVersion = "1.2.0"
-            outputBaseDir.set(project.layout.buildDirectory.dir("compose/binaries/1.2.0"))
-            description = "KEMI Mail for Windows"
+            packageName = "KEMI邮箱"
+            packageVersion = "1.3.0"
+            outputBaseDir.set(project.layout.buildDirectory.dir("compose/binaries/1.3.0"))
+            description = "KEMI邮箱"
             vendor = "KEMI"
             licenseFile.set(rootProject.file("../LICENSE"))
-            modules("java.naming", "java.security.jgss", "java.sql", "jdk.crypto.ec", "jdk.unsupported")
-            windows { menuGroup = "KEMI"; shortcut = true; dirChooser = true; perUserInstall = true }
+            modules("java.naming", "java.security.jgss", "java.sql", "jdk.crypto.ec", "jdk.unsupported", "jdk.charsets")
+            windows { iconFile.set(project.file("resources/kemi-mail.ico")); menuGroup = "KEMI邮箱"; shortcut = true; dirChooser = true; perUserInstall = true }
         }
     }
 }

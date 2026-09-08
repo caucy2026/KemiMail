@@ -128,11 +128,11 @@ object MailColors {
             fontWeight = FontWeight.Medium,color = Color(0xFF5D7599))
     }
 }
+@Composable fun kemiMailPainter(): androidx.compose.ui.graphics.painter.Painter =
+    androidx.compose.ui.res.painterResource("kemi-mail.png")
+
 @Composable fun BrandMark(large: Boolean = false) {
-    Box(Modifier.size(if (large) 68.dp else 32.dp).clip(RoundedCornerShape(if (large) 18.dp else 9.dp))
-        .background(MailColors.blue),contentAlignment = Alignment.Center) {
-        Glyph(MailIcon.Mail,Modifier.size(if (large) 34.dp else 20.dp),Color.White)
-    }
+    Image(kemiMailPainter(),"KEMI邮箱",Modifier.size(if (large) 68.dp else 32.dp))
 }
 @Composable fun NavigationRow(text: String,icon: MailIcon,selected: Boolean,enabled: Boolean = true,onClick: () -> Unit) {
     Surface(onClick,Modifier.fillMaxWidth(),enabled,shape = RoundedCornerShape(7.dp),
