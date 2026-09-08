@@ -13,6 +13,10 @@ import kotlin.test.*
 class MailCoreTest {
     private fun account() = Account(email = "user@example.invalid",username = "user",password = "test-only",
         imapHost = "imap.example.invalid",smtpHost = "smtp.example.invalid")
+    @Test fun `IMAP client identity is printable ASCII independent of localized application name`() {
+        assertTrue(imapClientIdentity.all { (key,value) -> (key + value).all { it.code in 32..126 } })
+        assertEquals("KemiMail",imapClientIdentity["name"])
+    }
     @Test fun `address parser rejects header injection and missing domain`() {
         assertFailsWith<IllegalArgumentException> { addresses("a@example.invalid\r\nBcc: other@example.invalid") }
         assertFailsWith<IllegalArgumentException> { addresses("invalid") }

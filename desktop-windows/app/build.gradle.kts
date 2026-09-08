@@ -23,8 +23,8 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Exe)
             packageName = "KEMI邮箱"
-            packageVersion = "1.3.0"
-            outputBaseDir.set(project.layout.buildDirectory.dir("compose/binaries/1.3.0"))
+            packageVersion = "1.3.1"
+            outputBaseDir.set(project.layout.buildDirectory.dir("compose/binaries/1.3.1"))
             description = "KEMI邮箱"
             vendor = "KEMI"
             licenseFile.set(rootProject.file("../LICENSE"))

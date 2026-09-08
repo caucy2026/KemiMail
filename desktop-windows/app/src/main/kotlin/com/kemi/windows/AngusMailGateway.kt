@@ -12,6 +12,9 @@ import java.util.Properties
 import java.io.ByteArrayOutputStream
 import java.nio.charset.Charset
 
+// Protocol identity must remain ASCII: some providers reject localized IMAP ID values after authentication.
+internal val imapClientIdentity = mapOf("name" to "KemiMail", "version" to "1.3.1")
+
 class AngusMailGateway : MailGateway {
     private var activeAccount: Account? = null
     private var activeStore: IMAPStore? = null
@@ -53,7 +56,7 @@ class AngusMailGateway : MailGateway {
                 val store = session(account).getStore("imap") as IMAPStore
                 activeStore = store
                 store.connect(account.imapHost, account.imapPort, account.username, account.password)
-                if (store.hasCapability("ID")) store.id(mapOf("name" to "KEMI邮箱", "version" to "1.3.0"))
+                if (store.hasCapability("ID")) store.id(imapClientIdentity)
                 activeAccount = account; connectionCount++
             }
             return block(checkNotNull(activeStore))

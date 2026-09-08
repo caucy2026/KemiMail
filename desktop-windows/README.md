@@ -2,6 +2,10 @@
 
 普通单屏 Windows 邮箱客户端，独立位于 `windows` 分支。使用 Kotlin、Compose Desktop、Koin 与协程 StateFlow，桌面设计组件复用仓库既有 K-9 主题颜色。Windows 专属入口在本目录单独构建，不加载 Android Gradle 插件，也不改动 Android 模块。
 
+## 1.3.1 连接兼容修复
+
+修复 1.3.0 将 IMAP ID 客户端标识本地化为中文后，部分服务器认证成功却拒绝后续 ID 命令、无法加载文件夹的问题。协议标识保持 ASCII `KemiMail`，界面和安装器仍显示“KEMI邮箱”。原有账号及密码不需要重新设置。
+
 ## 1.3.0 修复
 
 - 程序、标题栏、任务栏、安装器及应用内统一为“KEMI邮箱”，使用 Android 同源启动图标。内部数据目录仍保留 `%LOCALAPPDATA%\KemiMail`，兼容原有账号、草稿与单实例锁。
@@ -18,7 +22,7 @@
 
 采用轻量桌面邮件风格：浅灰侧栏、柔和选中态、统一线性图标工具栏、分层邮件列表和宽松阅读区；账号设置与撰写窗口使用同一组紧凑表单组件。图标操作提供中文悬停提示和无障碍名称。保留 Windows 原生窗口控制与原有账号、草稿格式。
 
-通过 `:app:renderPreview` 生成收件箱、空状态、账号设置、撰写窗口、1000×640 小窗口和 150% 缩放截图。预览仅使用合成数据，正式启动不注入演示账号或邮件。Windows 安装包版本为 1.3.0。
+通过 `:app:renderPreview` 生成收件箱、空状态、账号设置、撰写窗口、1000×640 小窗口和 150% 缩放截图。预览仅使用合成数据，正式启动不注入演示账号或邮件。Windows 安装包版本为 1.3.1。
 
 ## 功能
 
@@ -46,7 +50,7 @@ $env:JAVA_HOME = 'C:\Program Files\Java\jdk-24'
 .\gradlew.bat -p desktop-windows :app:packageExe --console=plain
 ```
 
-应用目录为 `desktop-windows/app/build/compose/binaries/1.3.0/main/app/KEMI邮箱`，直接运行其中的 `KEMI邮箱.exe`。整个目录包含运行环境，不能只复制 EXE。没有 Java 的电脑也可以运行完整应用目录。安装包和应用目录目前均未进行 Authenticode 签名。
+应用目录为 `desktop-windows/app/build/compose/binaries/1.3.1/main/app/KEMI邮箱`，直接运行其中的 `KEMI邮箱.exe`。整个目录包含运行环境，不能只复制 EXE。没有 Java 的电脑也可以运行完整应用目录。安装包和应用目录目前均未进行 Authenticode 签名。
 
 `--self-test <temporary-directory>` 是显式无网络诊断入口，使用合成账号验证 Windows DPAPI、草稿、MIME 和打包运行环境，不读取用户真实数据。
 
