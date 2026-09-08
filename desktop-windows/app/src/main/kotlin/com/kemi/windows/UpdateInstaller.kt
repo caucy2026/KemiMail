@@ -16,7 +16,11 @@ internal class UpdateInstaller(private val dataDirectory: Path) {
             Files.isDirectory(executable.parent.resolve("runtime")),"无法确认当前安装目录")
         val directory = installer.parent
         val script = directory.resolve("install.ps1")
-        UpdateInstaller::class.java.getResourceAsStream("/update-runner.ps1")!!.use { Files.copy(it,script) }
+        val ready = directory.resolve("ready.txt")
+        Files.deleteIfExists(ready)
+        UpdateInstaller::class.java.getResourceAsStream("/update-runner.ps1")!!.use {
+            Files.copy(it,script,java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+        }
         val manifest = buildJsonObject {
             put("installer",installer.toAbsolutePath().toString()); put("target",executable.toString())
             put("pid",ProcessHandle.current().pid()); put("version",update.name)
@@ -31,7 +35,6 @@ internal class UpdateInstaller(private val dataDirectory: Path) {
             "-ExecutionPolicy","Bypass","-File",script.toString(),"-ManifestPath",manifestPath.toString())
             .redirectOutput(directory.resolve("runner.log").toFile()).redirectErrorStream(true).start()
         // Wait for explicit readiness before closing the application; the runner then waits for this process.
-        val ready = directory.resolve("ready.txt")
         val deadline = System.nanoTime() + 10_000_000_000L
         while (!Files.exists(ready) && process.isAlive && System.nanoTime() < deadline) Thread.sleep(50)
         if (!Files.exists(ready)) {
