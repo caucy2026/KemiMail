@@ -21,7 +21,7 @@ import java.time.format.DateTimeFormatter
 private val dateFormat = DateTimeFormatter.ofPattern("MM-dd HH:mm").withZone(ZoneId.systemDefault())
 private val fullDateFormat = DateTimeFormatter.ofPattern("yyyy年M月d日  HH:mm").withZone(ZoneId.systemDefault())
 
-@Composable fun MailScreen(state: MailState,dispatch: (MailEvent) -> Unit) {
+@Composable fun MailScreen(state: MailState,dispatch: (MailEvent) -> Unit,onCheckUpdate: (() -> Unit)? = null) {
     var query by remember { mutableStateOf("") }
     var deleteConfirm by remember { mutableStateOf(false) }
     KemiTheme { Panel(Modifier.fillMaxSize()) {
@@ -51,7 +51,8 @@ private val fullDateFormat = DateTimeFormatter.ofPattern("yyyy年M月d日  HH:mm
             Row(Modifier.fillMaxWidth().background(MailColors.wash).padding(horizontal = 16.dp,vertical = 5.dp),
                 verticalAlignment = Alignment.CenterVertically,horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Label(state.status,Modifier.weight(1f),muted = !state.error,error = state.error,small = true,maxLines = 2)
-                Label("KEMI邮箱  1.3.1",muted = true,small = true)
+                onCheckUpdate?.let { Action("检查更新",onClick = it) }
+                Label("KEMI邮箱  ${MailRelease.name}",muted = true,small = true)
             }
         }
     }

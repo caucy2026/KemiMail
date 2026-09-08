@@ -2,6 +2,18 @@
 
 普通单屏 Windows 邮箱客户端，独立位于 `windows` 分支。使用 Kotlin、Compose Desktop、Koin 与协程 StateFlow，桌面设计组件复用仓库既有 K-9 主题颜色。Windows 专属入口在本目录单独构建，不加载 Android Gradle 插件，也不改动 Android 模块。
 
+## Windows 自升级
+
+1.4.0 起接入 KEMI 公开 Windows 更新接口。状态栏提供“检查更新”，启动后后台检查；下载后校验准确大小及 SHA-256，用户点击“安装并重启”时先保存草稿。网络失败不会影响邮箱功能。逻辑包名为 `com.fsck.k9`，必须传 `os=windows`，与 Android 应用独立发布。
+
+版本以 `desktop-windows/version.properties` 为唯一来源。后台发布选择“仅自升级（不展示）”、非强制更新；Windows x64 安装包由 `desktop-windows/scripts/build-release.ps1` 原生构建，输出独立 `dist/<版本>/` 目录和 `release.json`。禁止复用已发布整数版本覆盖不同文件。
+
+jpackage 升级 UUID 固定为 `a61e8dc4-bfa7-3458-89f8-669238465324`，与 JDK 24 对 KEMI/KEMI邮箱生成的原有标识一致。升级器在暂存目录独立运行，等待旧进程退出后调用 EXE/MSI 安装，保留当前安装目录；账号和草稿继续位于 `%LOCALAPPDATA%\KemiMail`。Windows Installer 提供安装事务失败回滚；启动后的业务故障不承诺自动回滚，失败会保留升级结果、日志和安装包供恢复。
+
+安装成功后重新启动程序，检查新版本启动回执；成功会清理下载的安装包。升级记录保存在数据目录的 `updates/<随机标识>/result.txt`。首次从 1.3.x 使用升级功能，需要先安装一次含更新能力的版本。
+
+`--update-smoke <全新临时目录>` 为显式有网络验收入口：仅创建合成 DPAPI 账号和草稿，调用真实公开接口下载更高版本，启动同一升级器，升级后检查合成数据保留及无更新。不会连接邮箱服务器，也不会使用真实账号数据。该入口会实际安装，必须在已授权的测试安装位置运行。
+
 ## 1.3.1 连接兼容修复
 
 修复 1.3.0 将 IMAP ID 客户端标识本地化为中文后，部分服务器认证成功却拒绝后续 ID 命令、无法加载文件夹的问题。协议标识保持 ASCII `KemiMail`，界面和安装器仍显示“KEMI邮箱”。原有账号及密码不需要重新设置。

@@ -15,6 +15,8 @@ import java.nio.file.StandardOpenOption
 import javax.swing.JOptionPane
 
 fun main(args: Array<String>) {
+    if (args.firstOrNull() == "--update-smoke") { runUpdateSmoke(Path.of(args[1]),false); return }
+    if (args.firstOrNull() == "--update-smoke-result") { runUpdateSmoke(Path.of(args[1]),true,Path.of(args[3])); return }
     if (args.firstOrNull() == "--render-preview") { renderPreview(Path.of(args[1])); return }
     if (args.firstOrNull() == "--self-test") { runSelfTest(Path.of(args.getOrElse(1) { "self-test" })); return }
     if (!System.getProperty("os.name").startsWith("Windows")) {
@@ -34,15 +36,29 @@ fun main(args: Array<String>) {
         single { AccountVault(directory,get()) }
         single<MailGateway> { AngusMailGateway() }
         single { MailViewModel(get(),get(),scope) }
+        single { KemiUpdateClient() }
+        single { UpdateInstaller(directory) }
+        single { UpdateViewModel(get(),get(),scope) }
     }) }.koin
     try {
         application {
             val viewModel = remember { koin.get<MailViewModel>() }
             val state by viewModel.state.collectAsState()
+            val updateController = remember { koin.get<UpdateViewModel>() }
+            val updateState by updateController.state.collectAsState()
+            LaunchedEffect(Unit) { delay(5000); updateController.check(manual = false) }
+            LaunchedEffect(state.storageReady) {
+                if (state.storageReady && args.firstOrNull() == "--updated" && args.size == 2) {
+                    withContext(Dispatchers.IO) { writeUpdateReceipt(Path.of(args[1]),directory) }
+                }
+            }
             Window(onCloseRequest = { viewModel.close { exitApplication() } }, title = "KEMI邮箱", icon = com.kemi.windows.designsystem.kemiMailPainter(),
                 state = rememberWindowState(width = 1320.dp,height = 820.dp)) {
                 window.minimumSize = java.awt.Dimension(1000,640)
-                MailScreen(state,viewModel::dispatch)
+                MailScreen(state,viewModel::dispatch) { updateController.check() }
+                UpdateDialog(updateState,state.busy,updateController) {
+                    viewModel.close { updateController.install { exitApplication() } }
+                }
             }
         }
     } finally { scope.cancel(); lock.release(); channel.close() }

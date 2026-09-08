@@ -34,10 +34,10 @@ internal fun renderPreview(directory: Path) {
             scene.render().use { image -> image.encodeToData()?.use { Files.write(directory.resolve("$name.png"),it.bytes) } ?: error("Render failed") }
         } finally { scene.close() }
     }
-    render("inbox",1320,820) { MailScreen(sample) {} }
-    render("compact",1000,640) { MailScreen(sample) {} }
-    render("scaled-150",1980,1230,1.5f) { MailScreen(sample) {} }
-    render("welcome",1320,820) { MailScreen(MailState(storageReady = true,status = "欢迎使用 KEMI邮箱，请添加账号")) {} }
+    render("inbox",1320,820) { MailScreen(sample,{}) {} }
+    render("compact",1000,640) { MailScreen(sample,{}) {} }
+    render("scaled-150",1980,1230,1.5f) { MailScreen(sample,{}) {} }
+    render("welcome",1320,820) { MailScreen(MailState(storageReady = true,status = "欢迎使用 KEMI邮箱，请添加账号"),{}) {} }
     render("account",700,760) { AccountForm(sample.copy(editingAccount = MailProvider.ALIBABA.applyTo(a)),{}) }
     render("account-servers",700,760) { AccountForm(sample.copy(editingAccount = MailProvider.ALIBABA.applyTo(a)),{},androidx.compose.foundation.ScrollState(Int.MAX_VALUE)) }
     render("compose",850,760) { ComposeForm(sample.copy(draftAccount = a,draft = ComposeDraft(to = "team@example.invalid",

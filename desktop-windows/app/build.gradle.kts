@@ -1,9 +1,14 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import java.util.Properties
 plugins { kotlin("jvm"); id("org.jetbrains.compose"); id("org.jetbrains.kotlin.plugin.compose") }
+val releaseProperties = Properties().apply { rootProject.file("version.properties").inputStream().use { load(it) } }
+val releaseVersion = releaseProperties.getProperty("versionName")
+tasks.processResources { from(rootProject.file("version.properties")) }
 java { sourceCompatibility = JavaVersion.VERSION_21; targetCompatibility = JavaVersion.VERSION_21 }
 kotlin { compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21) } }
 dependencies {
     implementation(project(":designsystem"))
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
     implementation(if (project.hasProperty("windowsTarget")) compose.desktop.windows_x64 else compose.desktop.currentOs)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.10.2")
     implementation("io.insert-koin:koin-core:4.2.1")
@@ -23,13 +28,13 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Exe)
             packageName = "KEMI邮箱"
-            packageVersion = "1.3.1"
-            outputBaseDir.set(project.layout.buildDirectory.dir("compose/binaries/1.3.1"))
+            packageVersion = releaseVersion
+            outputBaseDir.set(project.layout.buildDirectory.dir("compose/binaries/$releaseVersion"))
             description = "KEMI邮箱"
             vendor = "KEMI"
             licenseFile.set(rootProject.file("../LICENSE"))
             modules("java.naming", "java.security.jgss", "java.sql", "jdk.crypto.ec", "jdk.unsupported", "jdk.charsets")
-            windows { iconFile.set(project.file("resources/kemi-mail.ico")); menuGroup = "KEMI邮箱"; shortcut = true; dirChooser = true; perUserInstall = true }
+            windows { upgradeUuid = "a61e8dc4-bfa7-3458-89f8-669238465324"; iconFile.set(project.file("resources/kemi-mail.ico")); menuGroup = "KEMI邮箱"; shortcut = true; dirChooser = true; perUserInstall = true }
         }
     }
 }
