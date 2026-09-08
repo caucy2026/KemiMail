@@ -10,7 +10,7 @@ if (-not $env:JAVA_HOME) { $env:JAVA_HOME = 'C:\Program Files\Java\jdk-24' }
 if (-not (Test-Path "$env:JAVA_HOME\bin\jpackage.exe")) { throw 'JDK with jpackage required' }
 $destination = Join-Path $repo "desktop-windows\dist\$version"
 if (Test-Path $destination) { throw 'Release directory already exists; use a new version' }
-& .\gradlew.bat -p desktop-windows :app:test :app:packageExe --console=plain
+& .\gradlew.bat -p desktop-windows :app:test :app:createDistributable :app:packageExe --console=plain
 if ($LASTEXITCODE -ne 0) { throw 'Native tests or build failed' }
 $packages = @(Get-ChildItem "desktop-windows\app\build\compose\binaries\$version\main\exe" -Filter '*.exe')
 if ($packages.Count -ne 1) { throw 'Expected exactly one Windows installer' }
