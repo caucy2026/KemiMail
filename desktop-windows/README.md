@@ -4,6 +4,10 @@
 
 ## Windows 自升级
 
+当前正式版 **1.4.2 / 10402**，KEMI 后台应用 ID **64**，Windows x64，已设置仅自升级不展示、非强制更新。下载大小为 68,502,016 字节，SHA-256 为 `0f692b9053681c51b2a1f33045badf39b6c112bcee8303e6e6e33df83d7db0c1`。安装包源码提交为 `c2e475639c1368827fd7c359f342414f2f68b7a5`。
+
+2026-09-08 验收：Mac/Windows 各 42 项测试通过；公开接口旧版本有更新、同版本及更高版本无更新，CDN 完整下载大小/哈希与构建产物一致；Windows 已安装 1.4.0 经真实接口自动升级到 1.4.2，合成 DPAPI 账号/草稿恢复正常、原有用户加密数据哈希不变、下载的 EXE 已清理。此验收不连接真实邮箱，不代表重新验证了真实收发业务。安装器未签名；安装事务故障回滚和启动后异常恢复未做故障注入验收。
+
 1.4.0 起接入 KEMI 公开 Windows 更新接口。状态栏提供“检查更新”，启动后后台检查；下载后校验准确大小及 SHA-256，用户点击“安装并重启”时先保存草稿。网络失败不会影响邮箱功能。逻辑包名为 `com.fsck.k9`，必须传 `os=windows`，与 Android 应用独立发布。
 
 版本以 `desktop-windows/version.properties` 为唯一来源。后台发布选择“仅自升级（不展示）”、非强制更新；Windows x64 安装包由 `desktop-windows/scripts/build-release.ps1` 原生构建，输出独立 `dist/<版本>/` 目录和 `release.json`。禁止复用已发布整数版本覆盖不同文件。
@@ -34,7 +38,7 @@ jpackage 升级 UUID 固定为 `a61e8dc4-bfa7-3458-89f8-669238465324`，与 JDK 
 
 采用轻量桌面邮件风格：浅灰侧栏、柔和选中态、统一线性图标工具栏、分层邮件列表和宽松阅读区；账号设置与撰写窗口使用同一组紧凑表单组件。图标操作提供中文悬停提示和无障碍名称。保留 Windows 原生窗口控制与原有账号、草稿格式。
 
-通过 `:app:renderPreview` 生成收件箱、空状态、账号设置、撰写窗口、1000×640 小窗口和 150% 缩放截图。预览仅使用合成数据，正式启动不注入演示账号或邮件。Windows 安装包版本为 1.3.1。
+通过 `:app:renderPreview` 生成收件箱、空状态、账号设置、撰写窗口、1000×640 小窗口和 150% 缩放截图。预览仅使用合成数据，正式启动不注入演示账号或邮件。当前 Windows 安装包版本见上方自升级发布记录。
 
 ## 功能
 
@@ -62,7 +66,7 @@ $env:JAVA_HOME = 'C:\Program Files\Java\jdk-24'
 .\gradlew.bat -p desktop-windows :app:packageExe --console=plain
 ```
 
-应用目录为 `desktop-windows/app/build/compose/binaries/1.3.1/main/app/KEMI邮箱`，直接运行其中的 `KEMI邮箱.exe`。整个目录包含运行环境，不能只复制 EXE。没有 Java 的电脑也可以运行完整应用目录。安装包和应用目录目前均未进行 Authenticode 签名。
+应用目录为 `desktop-windows/app/build/compose/binaries/1.4.2/main/app/KEMI邮箱`，直接运行其中的 `KEMI邮箱.exe`。整个目录包含运行环境，不能只复制 EXE。没有 Java 的电脑也可以运行完整应用目录。安装包和应用目录目前均未进行 Authenticode 签名。
 
 `--self-test <temporary-directory>` 是显式无网络诊断入口，使用合成账号验证 Windows DPAPI、草稿、MIME 和打包运行环境，不读取用户真实数据。
 
